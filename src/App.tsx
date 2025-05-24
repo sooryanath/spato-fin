@@ -10,6 +10,7 @@ import Login from "./pages/Login";
 import BankDashboard from "./pages/BankDashboard";
 import CompanyDashboard from "./pages/CompanyDashboard";
 import VendorDashboard from "./pages/VendorDashboard";
+import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -46,6 +47,14 @@ const App = () => (
               element={
                 <ProtectedRoute allowedRoles={['vendor']}>
                   <VendorDashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/profile" 
+              element={
+                <ProtectedRoute allowedRoles={['bank', 'company', 'vendor']}>
+                  <Profile />
                 </ProtectedRoute>
               } 
             />

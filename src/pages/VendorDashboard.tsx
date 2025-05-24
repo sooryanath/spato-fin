@@ -5,15 +5,22 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
-import { Banknote, ArrowRight, Building, TrendingUp } from 'lucide-react';
+import { Banknote, ArrowRight, Building, TrendingUp, Check } from 'lucide-react';
 import DashboardLayout from '@/components/DashboardLayout';
 import { toast } from '@/hooks/use-toast';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const VendorDashboard = () => {
   const { user } = useAuth();
   const [redeemAmount, setRedeemAmount] = useState('');
   const [transferAmount, setTransferAmount] = useState('');
   const [subVendorId, setSubVendorId] = useState('');
+  const [selectedVendor, setSelectedVendor] = useState('');
 
   const handleRedeemTokens = () => {
     if (!redeemAmount) {
@@ -48,6 +55,14 @@ const VendorDashboard = () => {
     });
     setTransferAmount('');
     setSubVendorId('');
+    setSelectedVendor('');
+  };
+
+  const handleRepayLoan = (loanId: string, amount: string) => {
+    toast({
+      title: "Loan Repayment Initiated",
+      description: `Repayment for loan #${loanId} of amount ${amount} initiated`,
+    });
   };
 
   const stats = [
@@ -83,11 +98,22 @@ const VendorDashboard = () => {
     { id: '3', type: 'Redeemed', from: 'Bank Loan', amount: '₹10,000', date: '2024-01-13' },
   ];
 
-  const subVendors = [
-    { id: 'SV001', name: 'Local Supplier A', balance: '₹5,000', status: 'Active' },
-    { id: 'SV002', name: 'Raw Material Supplier', balance: '₹3,200', status: 'Active' },
-    { id: 'SV003', name: 'Logistics Partner', balance: '₹1,800', status: 'Pending' },
+  const activeLoans = [
+    { id: 'L001', amount: '₹8,000', interest: '8.5%', startDate: '2024-01-10', dueDate: '2024-03-10' },
+    { id: 'L002', amount: '₹7,000', interest: '9.0%', startDate: '2024-02-05', dueDate: '2024-04-05' },
   ];
+
+  const subVendors = [
+    { id: 'SV001', name: 'Local Supplier A', balance: '₹5,000', status: 'Active', logo: '🏭' },
+    { id: 'SV002', name: 'Raw Material Supplier', balance: '₹3,200', status: 'Active', logo: '🏗️' },
+    { id: 'SV003', name: 'Logistics Partner', balance: '₹1,800', status: 'Pending', logo: '🚚' },
+    { id: 'SV004', name: 'Equipment Provider', balance: '₹2,500', status: 'Active', logo: '⚙️' },
+  ];
+
+  const handleSubVendorSelect = (vendor: any) => {
+    setSubVendorId(vendor.id);
+    setSelectedVendor(vendor.name);
+  };
 
   return (
     <DashboardLayout>
@@ -151,12 +177,37 @@ const VendorDashboard = () => {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="sub-vendor">Sub-Vendor ID</Label>
-                <Input
-                  id="sub-vendor"
-                  placeholder="Enter sub-vendor ID"
-                  value={subVendorId}
-                  onChange={(e) => setSubVendorId(e.target.value)}
-                />
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Input
+                      id="sub-vendor"
+                      placeholder="Select sub-vendor"
+                      value={selectedVendor ? `${subVendorId} - ${selectedVendor}` : ''}
+                      readOnly
+                      className="cursor-pointer"
+                    />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-[300px] bg-white">
+                    {subVendors.map((vendor) => (
+                      <DropdownMenuItem 
+                        key={vendor.id}
+                        onClick={() => handleSubVendorSelect(vendor)}
+                        className="flex justify-between items-center p-3 hover:bg-gray-100"
+                      >
+                        <div className="flex items-center">
+                          <span className="text-xl mr-3">{vendor.logo}</span>
+                          <div>
+                            <p className="font-medium">{vendor.name}</p>
+                            <p className="text-xs text-gray-600">{vendor.id}</p>
+                          </div>
+                        </div>
+                        <span className={`text-sm ${vendor.status === 'Active' ? 'text-green-600' : 'text-orange-600'}`}>
+                          {vendor.status}
+                        </span>
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="transfer-amount">Transfer Amount</Label>
@@ -176,6 +227,40 @@ const VendorDashboard = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Active Loans */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Active Loans</CardTitle>
+              <CardDescription>Your current bank loans</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {activeLoans.map((loan) => (
+                  <div key={loan.id} className="flex items-center justify-between p-3 border rounded-lg">
+                    <div>
+                      <p className="font-medium">Loan #{loan.id}</p>
+                      <p className="text-sm text-gray-600">
+                        Interest: {loan.interest} | Due: {loan.dueDate}
+                      </p>
+                      <p className="text-xs text-gray-500">{loan.startDate}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-medium text-blue-600">{loan.amount}</p>
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="mt-1"
+                        onClick={() => handleRepayLoan(loan.id, loan.amount)}
+                      >
+                        <Check className="h-3 w-3 mr-1" /> Repay Loan
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Token History */}
           <Card>
             <CardHeader>
@@ -204,33 +289,36 @@ const VendorDashboard = () => {
               </div>
             </CardContent>
           </Card>
+        </div>
 
-          {/* Sub-Vendors */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Your Sub-Vendors</CardTitle>
-              <CardDescription>Suppliers in your network</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {subVendors.map((vendor) => (
-                  <div key={vendor.id} className="flex items-center justify-between p-3 border rounded-lg">
+        {/* Sub-Vendors */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Your Sub-Vendors</CardTitle>
+            <CardDescription>Suppliers in your network</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {subVendors.map((vendor) => (
+                <div key={vendor.id} className="flex items-center justify-between p-3 border rounded-lg">
+                  <div className="flex items-center">
+                    <span className="text-xl mr-3">{vendor.logo}</span>
                     <div>
                       <p className="font-medium">{vendor.name}</p>
                       <p className="text-sm text-gray-600">{vendor.id}</p>
                     </div>
-                    <div className="text-right">
-                      <p className="font-medium">{vendor.balance}</p>
-                      <p className={`text-sm ${vendor.status === 'Active' ? 'text-green-600' : 'text-orange-600'}`}>
-                        {vendor.status}
-                      </p>
-                    </div>
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+                  <div className="text-right">
+                    <p className="font-medium">{vendor.balance}</p>
+                    <p className={`text-sm ${vendor.status === 'Active' ? 'text-green-600' : 'text-orange-600'}`}>
+                      {vendor.status}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </DashboardLayout>
   );

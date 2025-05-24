@@ -2,7 +2,7 @@
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { Banknote, LogOut, Home } from 'lucide-react';
+import { Banknote, LogOut, Home, User } from 'lucide-react';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -35,6 +35,10 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                 <Home className="h-4 w-4 mr-2" />
                 Home
               </Button>
+              <Button variant="ghost" size="sm" onClick={() => navigate('/profile')}>
+                <User className="h-4 w-4 mr-2" />
+                Profile
+              </Button>
               <Button variant="ghost" size="sm" onClick={handleLogout}>
                 <LogOut className="h-4 w-4 mr-2" />
                 Logout
@@ -53,7 +57,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
       <footer className="bg-white border-t mt-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center text-sm text-gray-500">
-            <p>API Integrations: GSTN (Ready) • Banking APIs (Ready)</p>
+            <p>API Integrations: GSTN (error) • Account Aggregator (error)</p>
             <p>© 2024 Spato Finance</p>
           </div>
         </div>
