@@ -1,43 +1,42 @@
 
-import React, { useState } from 'react';
-import { Check, ChevronsUpDown, Building } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/components/ui/command';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { useState } from 'react';
+import { Check, ChevronsUpDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from '@/components/ui/command';
 
-interface Company {
+export interface Company {
   id: string;
   name: string;
-  logo?: string;
+  logo: string;
 }
 
 interface CompanySelectDropdownProps {
-  onSelect: (companyId: string, companyName: string) => void;
+  value: string;
+  onValueChange: (value: string) => void;
+  companies: Company[];
   placeholder?: string;
 }
 
-const CompanySelectDropdown: React.FC<CompanySelectDropdownProps> = ({
-  onSelect,
-  placeholder = "Select syndicate company"
-}) => {
+export const CompanySelectDropdown = ({
+  value,
+  onValueChange,
+  companies = [],
+  placeholder = "Select company",
+}: CompanySelectDropdownProps) => {
   const [open, setOpen] = useState(false);
-  const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
-
-  // Mock data for companies with logos
-  const companies: Company[] = [
-    { id: 'TECH001', name: 'TechCorp Industries', logo: '/lovable-uploads/3403073a-51d7-4790-8a98-97dd7f906b44.png' },
-    { id: 'GLOB002', name: 'Global Manufacturing', logo: '/placeholder.svg' },
-    { id: 'SUPP003', name: 'Supply Chain Ltd', logo: '/placeholder.svg' },
-    { id: 'DIGI004', name: 'Digital Solutions Inc', logo: '/placeholder.svg' },
-  ];
-
-  const handleSelectCompany = (company: Company) => {
-    setSelectedCompany(company);
-    setOpen(false);
-    onSelect(company.id, company.name);
-  };
-
+  
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -45,47 +44,51 @@ const CompanySelectDropdown: React.FC<CompanySelectDropdownProps> = ({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-full justify-between text-left font-normal"
+          className="w-full justify-between"
         >
-          {selectedCompany ? selectedCompany.name : placeholder}
+          {value
+            ? companies.find((company) => company.id === value)?.name || placeholder
+            : placeholder}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-full p-0" align="start">
+      <PopoverContent className="w-full p-0">
         <Command>
           <CommandInput placeholder="Search company..." />
           <CommandEmpty>No company found.</CommandEmpty>
           <CommandGroup>
-            {Array.isArray(companies) && companies.length > 0 ? (
-              companies.map(company => (
-                <CommandItem
-                  key={company.id}
-                  value={company.name}
-                  onSelect={() => handleSelectCompany(company)}
-                  className="cursor-pointer"
-                >
-                  <div className="flex items-center gap-2">
-                    {company.logo ? (
-                      <img 
-                        src={company.logo} 
-                        alt={`${company.name} logo`} 
-                        className="h-6 w-6 rounded-full object-contain"
-                      />
-                    ) : (
-                      <Building className="h-6 w-6" />
-                    )}
-                    <span>{company.name}</span>
+            {companies && companies.length > 0 ? companies.map((company) => (
+              <CommandItem
+                key={company.id}
+                value={company.id}
+                onSelect={() => {
+                  onValueChange(company.id);
+                  setOpen(false);
+                }}
+              >
+                <div className="flex items-center gap-2">
+                  <div className="h-6 w-6 rounded-full overflow-hidden flex-shrink-0 bg-gray-100">
+                    <img
+                      src={company.logo}
+                      alt={company.name}
+                      className="h-full w-full object-cover"
+                      onError={(e) => {
+                        // Fallback for broken images
+                        (e.target as HTMLImageElement).src = "https://via.placeholder.com/24";
+                      }}
+                    />
                   </div>
-                  <Check
-                    className={cn(
-                      "ml-auto h-4 w-4",
-                      selectedCompany?.id === company.id ? "opacity-100" : "opacity-0"
-                    )}
-                  />
-                </CommandItem>
-              ))
-            ) : (
-              <div className="py-6 text-center text-sm">No companies available</div>
+                  <span>{company.name}</span>
+                </div>
+                <Check
+                  className={cn(
+                    "ml-auto h-4 w-4",
+                    value === company.id ? "opacity-100" : "opacity-0"
+                  )}
+                />
+              </CommandItem>
+            )) : (
+              <div className="p-2 text-sm text-center text-gray-500">No companies available</div>
             )}
           </CommandGroup>
         </Command>
