@@ -1,39 +1,68 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
-import { Banknote, Building, TrendingUp, Users, AlertTriangle } from 'lucide-react';
+import { Banknote, Building, TrendingUp, Users, AlertTriangle, Check } from 'lucide-react';
 import DashboardLayout from '@/components/DashboardLayout';
 import { toast } from '@/hooks/use-toast';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const BankDashboard = () => {
   const { user } = useAuth();
   const [issueAmount, setIssueAmount] = useState('');
   const [companyId, setCompanyId] = useState('');
+  const [selectedCompany, setSelectedCompany] = useState('');
   const [disputeReason, setDisputeReason] = useState('');
   const [showDisputeDialog, setShowDisputeDialog] = useState<string | null>(null);
+  const [issuingTokens, setIssuingTokens] = useState(false);
 
-  const handleIssueTokens = () => {
+  const handleIssueTokens = async () => {
     if (!issueAmount || !companyId) {
       toast({
         title: "Missing Information",
-        description: "Please enter both amount and company ID",
+        description: "Please enter both amount and select a company",
         variant: "destructive",
       });
       return;
     }
 
-    // Simulate token issuance
-    toast({
-      title: "Tokens Issued Successfully",
-      description: `${issueAmount} tokens issued to company ${companyId}`,
-    });
-    setIssueAmount('');
-    setCompanyId('');
+    setIssuingTokens(true);
+    
+    try {
+      // Simulate web3 interaction
+      toast({
+        title: "Connecting to Web3 Wallet",
+        description: "Please confirm the transaction in your wallet",
+      });
+      
+      // Simulate delay for transaction
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      toast({
+        title: "Tokens Issued Successfully",
+        description: `${issueAmount} CAT tokens minted and issued to ${selectedCompany}`,
+      });
+      
+      setIssueAmount('');
+      setCompanyId('');
+      setSelectedCompany('');
+    } catch (error) {
+      toast({
+        title: "Transaction Failed",
+        description: "Failed to mint tokens. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIssuingTokens(false);
+    }
   };
 
   const handleDispute = (loanId: string) => {
@@ -52,6 +81,25 @@ const BankDashboard = () => {
     });
     setShowDisputeDialog(null);
     setDisputeReason('');
+  };
+
+  const handleCloseLoan = (loanId: string) => {
+    toast({
+      title: "Loan Closed",
+      description: `Loan #${loanId} has been closed successfully`,
+    });
+  };
+
+  const syndicateCompanies = [
+    { id: 'SC001', name: 'TechCorp Industries', logo: '🏢', address: '123 Tech Park, Bangalore' },
+    { id: 'SC002', name: 'Global Manufacturing', logo: '🏭', address: '456 Industrial Area, Mumbai' },
+    { id: 'SC003', name: 'Supply Chain Ltd', logo: '🚚', address: '789 Logistics Hub, Delhi' },
+    { id: 'SC004', name: 'Energy Systems Inc', logo: '⚡', address: '101 Power Station Rd, Chennai' },
+  ];
+
+  const handleCompanySelect = (company: any) => {
+    setCompanyId(company.id);
+    setSelectedCompany(company.name);
   };
 
   const stats = [
@@ -131,17 +179,40 @@ const BankDashboard = () => {
           <Card>
             <CardHeader>
               <CardTitle>Issue New Tokens</CardTitle>
-              <CardDescription>Create and distribute tokens to companies</CardDescription>
+              <CardDescription>Create and distribute CAT tokens to syndicate companies</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="company">Company ID</Label>
-                <Input
-                  id="company"
-                  placeholder="Enter company identifier"
-                  value={companyId}
-                  onChange={(e) => setCompanyId(e.target.value)}
-                />
+                <Label htmlFor="company">Syndicate Company</Label>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Input
+                      id="company"
+                      placeholder="Select syndicate company"
+                      value={selectedCompany ? `${companyId} - ${selectedCompany}` : ''}
+                      readOnly
+                      className="cursor-pointer"
+                    />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-[300px] bg-white">
+                    {syndicateCompanies.map((company) => (
+                      <DropdownMenuItem 
+                        key={company.id}
+                        onClick={() => handleCompanySelect(company)}
+                        className="flex items-center p-3 hover:bg-gray-100"
+                      >
+                        <div className="flex items-center w-full">
+                          <span className="text-xl mr-3">{company.logo}</span>
+                          <div>
+                            <p className="font-medium">{company.name}</p>
+                            <p className="text-xs text-gray-600">{company.id}</p>
+                            <p className="text-xs text-gray-500">{company.address}</p>
+                          </div>
+                        </div>
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="amount">Token Amount</Label>
@@ -153,8 +224,12 @@ const BankDashboard = () => {
                   onChange={(e) => setIssueAmount(e.target.value)}
                 />
               </div>
-              <Button onClick={handleIssueTokens} className="w-full">
-                Issue Tokens
+              <Button 
+                onClick={handleIssueTokens} 
+                className="w-full"
+                disabled={issuingTokens}
+              >
+                {issuingTokens ? "Connecting to Web3 Wallet..." : "Issue CAT Tokens"}
               </Button>
             </CardContent>
           </Card>
@@ -229,9 +304,14 @@ const BankDashboard = () => {
                           </div>
                         </div>
                       ) : (
-                        <Button variant="outline" size="sm" onClick={() => setShowDisputeDialog(loan.id)}>
-                          Dispute
-                        </Button>
+                        <div className="flex space-x-2">
+                          <Button variant="outline" size="sm" onClick={() => setShowDisputeDialog(loan.id)}>
+                            Dispute
+                          </Button>
+                          <Button variant="outline" size="sm" onClick={() => handleCloseLoan(loan.id)}>
+                            <Check className="h-3 w-3 mr-1" /> Close Loan
+                          </Button>
+                        </div>
                       )}
                     </TableCell>
                   </TableRow>
