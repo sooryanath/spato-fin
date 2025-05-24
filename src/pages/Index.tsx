@@ -119,7 +119,7 @@ const Index = () => {
                 <Building className="h-8 w-8 text-green-600" />
               </div>
               <h3 className="font-semibold mb-2">Syndicate Companies</h3>
-              <p className="text-sm text-gray-600">Syndicate companies transfer CAT tokens to their main vendors for accessing formal loans from bank. In case of any dispute with vendors and bank in repayment, company will repay the money directly to bank</p>
+              <p className="text-sm text-gray-600">Syndicate companies transfer CAT tokens to their main vendors for accessing formal loans from bank.</p>
             </div>
             <ArrowRight className="h-6 w-6 text-gray-400 hidden md:block" />
             <div className="text-center">
