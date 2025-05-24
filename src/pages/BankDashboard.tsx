@@ -1,14 +1,21 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
-import { Banknote, Building, TrendingUp, Users, AlertTriangle } from 'lucide-react';
+import { Banknote, Building, TrendingUp, Users, AlertTriangle, ExternalLink } from 'lucide-react';
 import DashboardLayout from '@/components/DashboardLayout';
 import { toast } from '@/hooks/use-toast';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import CompanySelectDropdown, { Company } from '@/components/CompanySelectDropdown';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const BankDashboard = () => {
   const { user } = useAuth();
@@ -16,21 +23,31 @@ const BankDashboard = () => {
   const [companyId, setCompanyId] = useState('');
   const [disputeReason, setDisputeReason] = useState('');
   const [showDisputeDialog, setShowDisputeDialog] = useState<string | null>(null);
+  const [openDisputeDialog, setOpenDisputeDialog] = useState<string | null>(null);
+
+  // Mock syndicate companies data
+  const syndicateCompanies: Company[] = [
+    { id: 'comp1', name: 'TechCorp Industries', logo: 'https://via.placeholder.com/32/2563eb/ffffff?text=TC' },
+    { id: 'comp2', name: 'Global Manufacturing', logo: 'https://via.placeholder.com/32/16a34a/ffffff?text=GM' },
+    { id: 'comp3', name: 'Supply Chain Ltd', logo: 'https://via.placeholder.com/32/dc2626/ffffff?text=SC' },
+    { id: 'comp4', name: 'Logistics Partners', logo: 'https://via.placeholder.com/32/9333ea/ffffff?text=LP' },
+  ];
 
   const handleIssueTokens = () => {
     if (!issueAmount || !companyId) {
       toast({
         title: "Missing Information",
-        description: "Please enter both amount and company ID",
+        description: "Please enter both amount and select a company",
         variant: "destructive",
       });
       return;
     }
 
     // Simulate token issuance
+    const selectedCompany = syndicateCompanies.find(c => c.id === companyId);
     toast({
       title: "Tokens Issued Successfully",
-      description: `${issueAmount} tokens issued to company ${companyId}`,
+      description: `${issueAmount} tokens issued to ${selectedCompany?.name || 'company'}`,
     });
     setIssueAmount('');
     setCompanyId('');
@@ -88,9 +105,9 @@ const BankDashboard = () => {
   ];
 
   const disputedLoans = [
-    { id: 'L0987', vendor: 'Hardware Suppliers', company: 'TechCorp Industries', amount: '₹45,000', status: 'Under Review', dateDisputed: '2024-05-10' },
-    { id: 'L0876', vendor: 'Software Solutions', company: 'Global Manufacturing', amount: '₹1,20,000', status: 'Evidence Required', dateDisputed: '2024-05-05' },
-    { id: 'L0765', vendor: 'Logistics Partner', company: 'Supply Chain Ltd', amount: '₹35,000', status: 'Mediation', dateDisputed: '2024-04-28' },
+    { id: 'L0987', vendor: 'Hardware Suppliers', company: 'TechCorp Industries', amount: '₹45,000', status: 'Under Review', dateDisputed: '2024-05-10', details: 'Invoice discrepancy found in the submitted documents. Vendor claims payment for services not rendered.' },
+    { id: 'L0876', vendor: 'Software Solutions', company: 'Global Manufacturing', amount: '₹1,20,000', status: 'Evidence Required', dateDisputed: '2024-05-05', details: 'Contract terms violation. The delivered software does not meet the agreed specifications.' },
+    { id: 'L0765', vendor: 'Logistics Partner', company: 'Supply Chain Ltd', amount: '₹35,000', status: 'Mediation', dateDisputed: '2024-04-28', details: 'Delivery timeline breach. Goods were delivered 15 days after the agreed date causing business disruption.' },
   ];
 
   const recentTransactions = [
@@ -135,12 +152,12 @@ const BankDashboard = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="company">Company ID</Label>
-                <Input
-                  id="company"
-                  placeholder="Enter company identifier"
+                <Label htmlFor="company">Select Syndicate Company</Label>
+                <CompanySelectDropdown
                   value={companyId}
-                  onChange={(e) => setCompanyId(e.target.value)}
+                  onValueChange={setCompanyId}
+                  companies={syndicateCompanies}
+                  placeholder="Select syndicate company"
                 />
               </div>
               <div className="space-y-2">
@@ -260,6 +277,7 @@ const BankDashboard = () => {
                   <TableHead>Amount</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Date Disputed</TableHead>
+                  <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -275,6 +293,17 @@ const BankDashboard = () => {
                       </span>
                     </TableCell>
                     <TableCell>{loan.dateDisputed}</TableCell>
+                    <TableCell>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => setOpenDisputeDialog(loan.id)}
+                        className="flex items-center gap-1"
+                      >
+                        <ExternalLink className="h-3.5 w-3.5" />
+                        Open
+                      </Button>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -282,6 +311,63 @@ const BankDashboard = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Dispute Details Dialog */}
+      {openDisputeDialog && (
+        <Dialog open={!!openDisputeDialog} onOpenChange={() => setOpenDisputeDialog(null)}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Dispute Details: {openDisputeDialog}</DialogTitle>
+              <DialogDescription>
+                Case information and status details
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              {disputedLoans.find(loan => loan.id === openDisputeDialog) && (
+                <>
+                  <div>
+                    <h4 className="text-sm font-semibold">Vendor</h4>
+                    <p className="text-sm text-gray-500">
+                      {disputedLoans.find(loan => loan.id === openDisputeDialog)?.vendor}
+                    </p>
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-semibold">Syndicate Company</h4>
+                    <p className="text-sm text-gray-500">
+                      {disputedLoans.find(loan => loan.id === openDisputeDialog)?.company}
+                    </p>
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-semibold">Amount</h4>
+                    <p className="text-sm text-gray-500">
+                      {disputedLoans.find(loan => loan.id === openDisputeDialog)?.amount}
+                    </p>
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-semibold">Status</h4>
+                    <p>
+                      <span className="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800">
+                        {disputedLoans.find(loan => loan.id === openDisputeDialog)?.status}
+                      </span>
+                    </p>
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-semibold">Dispute Details</h4>
+                    <p className="text-sm text-gray-500">
+                      {disputedLoans.find(loan => loan.id === openDisputeDialog)?.details}
+                    </p>
+                  </div>
+                </>
+              )}
+              <div className="pt-4">
+                <Button onClick={() => setOpenDisputeDialog(null)} className="w-full">
+                  Close
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </DashboardLayout>
   );
 };
