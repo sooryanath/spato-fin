@@ -22,7 +22,7 @@ const Index = () => {
     {
       icon: Banknote,
       title: 'Credit Access Tokens',
-      description: 'Banks can issue Credit Access Tokens (CAT) to companies for supply chain financing',
+      description: 'Banks can issue Credit Access Tokens (CAT) to Syndicate Companies for supply chain financing',
     },
     {
       icon: Building,
@@ -60,9 +60,14 @@ const Index = () => {
                   </Button>
                 </div>
               ) : (
-                <Button onClick={() => navigate('/login')}>
-                  Login
-                </Button>
+                <div className="flex items-center space-x-4">
+                  <Button onClick={() => navigate('/vendor-signup')} variant="outline">
+                    Vendor SignUp
+                  </Button>
+                  <Button onClick={() => navigate('/login')}>
+                    Login
+                  </Button>
+                </div>
               )}
             </div>
           </div>

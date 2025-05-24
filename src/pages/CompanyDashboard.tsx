@@ -5,9 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
-import { ArrowRight, Building, Banknote, Users, TrendingDown } from 'lucide-react';
+import { ArrowRight, Building, Banknote, Users, TrendingDown, AlertTriangle } from 'lucide-react';
 import DashboardLayout from '@/components/DashboardLayout';
 import { toast } from '@/hooks/use-toast';
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
 
 const CompanyDashboard = () => {
   const { user } = useAuth();
@@ -30,6 +31,13 @@ const CompanyDashboard = () => {
     });
     setTransferAmount('');
     setVendorId('');
+  };
+
+  const handleResolveDispute = (disputeId: string) => {
+    toast({
+      title: "Dispute Resolution Initiated",
+      description: `Resolution process started for dispute #${disputeId}`,
+    });
   };
 
   const stats = [
@@ -69,6 +77,12 @@ const CompanyDashboard = () => {
     { id: '1', vendor: 'Global Supplies Ltd', amount: '₹15,000', date: '2024-01-15', status: 'Completed' },
     { id: '2', vendor: 'Tech Components Inc', amount: '₹8,500', date: '2024-01-14', status: 'Completed' },
     { id: '3', vendor: 'Raw Materials Co', amount: '₹12,000', date: '2024-01-13', status: 'Processing' },
+  ];
+
+  const disputes = [
+    { id: 'D001', subVendor: 'Electronic Parts Ltd', bank: 'HDFC Bank', amount: '₹25,000', date: '2024-05-12', status: 'Open' },
+    { id: 'D002', subVendor: 'Logistics Partners Inc', bank: 'ICICI Bank', amount: '₹18,500', date: '2024-05-10', status: 'Open' },
+    { id: 'D003', subVendor: 'Manufacturing Solutions', bank: 'SBI', amount: '₹32,000', date: '2024-05-05', status: 'Under Review' }
   ];
 
   return (
@@ -188,6 +202,56 @@ const CompanyDashboard = () => {
                 </div>
               ))}
             </div>
+          </CardContent>
+        </Card>
+        
+        {/* Dispute Resolution */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Dispute Resolution</CardTitle>
+            <CardDescription>Manage active loan disputes with banks and vendors</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>ID</TableHead>
+                  <TableHead>Sub-Vendor</TableHead>
+                  <TableHead>Bank</TableHead>
+                  <TableHead>Amount</TableHead>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Action</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {disputes.map((dispute) => (
+                  <TableRow key={dispute.id}>
+                    <TableCell>{dispute.id}</TableCell>
+                    <TableCell>{dispute.subVendor}</TableCell>
+                    <TableCell>{dispute.bank}</TableCell>
+                    <TableCell>{dispute.amount}</TableCell>
+                    <TableCell>{dispute.date}</TableCell>
+                    <TableCell>
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        dispute.status === 'Open' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'
+                      }`}>
+                        {dispute.status}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => handleResolveDispute(dispute.id)}
+                      >
+                        Resolve
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </CardContent>
         </Card>
       </div>

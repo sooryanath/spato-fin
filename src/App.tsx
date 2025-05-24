@@ -26,6 +26,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/vendor-signup" element={<Login />} /> {/* Using Login page temporarily */}
             <Route 
               path="/bank" 
               element={
