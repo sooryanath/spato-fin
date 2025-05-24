@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,11 +9,14 @@ import { toast } from '@/hooks/use-toast';
 import { Banknote, Upload, AlertTriangle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useForm } from 'react-hook-form';
+import CompanySelectDropdown from '@/components/CompanySelectDropdown';
+import { vendorCompanies } from '@/data/mockCompanies';
 
 const CompanyProfile = () => {
   const { user } = useAuth();
   const [isConnectingGstn, setIsConnectingGstn] = useState(false);
   const [isUpdatingBankAccount, setIsUpdatingBankAccount] = useState(false);
+  const [selectedVendorId, setSelectedVendorId] = useState('');
 
   const form = useForm({
     defaultValues: {
@@ -28,7 +30,8 @@ const CompanyProfile = () => {
       bankName: '',
       companyType: '',
       registrationNumber: '',
-      yearFounded: ''
+      yearFounded: '',
+      vendor: ''
     }
   });
 
@@ -164,6 +167,18 @@ const CompanyProfile = () => {
                       Upload Logo
                     </Button>
                   </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="vendor">Vendor ID</Label>
+                  <CompanySelectDropdown
+                    options={vendorCompanies}
+                    value={selectedVendorId}
+                    onValueChange={setSelectedVendorId}
+                    placeholder="Select vendor"
+                    showAddress={true}
+                    className="h-10"
+                  />
                 </div>
                 
                 <Button type="submit">Update Profile</Button>

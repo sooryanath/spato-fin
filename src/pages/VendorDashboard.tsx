@@ -4,144 +4,87 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
-import { Banknote, ArrowRight, Building, TrendingUp, Check, AlertTriangle } from 'lucide-react';
+import { ArrowRight, Building, Banknote, Users, TrendingDown, AlertTriangle } from 'lucide-react';
 import DashboardLayout from '@/components/DashboardLayout';
 import { toast } from '@/hooks/use-toast';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
+import CompanySelectDropdown from '@/components/CompanySelectDropdown';
+import { subVendorCompanies } from '@/data/mockCompanies';
 
 const VendorDashboard = () => {
   const { user } = useAuth();
-  const [redeemAmount, setRedeemAmount] = useState('');
   const [transferAmount, setTransferAmount] = useState('');
-  const [subVendorId, setSubVendorId] = useState('');
-  const [selectedVendor, setSelectedVendor] = useState('');
-  const [isTransferring, setIsTransferring] = useState(false);
+  const [selectedSubVendorId, setSelectedSubVendorId] = useState('');
 
-  const handleRedeemTokens = () => {
-    if (!redeemAmount) {
+  const handleTransferTokens = () => {
+    if (!transferAmount || !selectedSubVendorId) {
       toast({
         title: "Missing Information",
-        description: "Please enter redeem amount",
+        description: "Please enter both amount and vendor ID",
         variant: "destructive",
       });
       return;
     }
 
     toast({
-      title: "Loan Request Submitted",
-      description: `Request to redeem ${redeemAmount} tokens for loan submitted to bank`,
+      title: "Tokens Transferred Successfully",
+      description: `${transferAmount} tokens transferred to vendor ${selectedSubVendorId}`,
     });
-    setRedeemAmount('');
+    setTransferAmount('');
+    setSelectedSubVendorId('');
   };
 
-  const handleTransferToSubVendor = async () => {
-    if (!transferAmount || !subVendorId) {
-      toast({
-        title: "Missing Information",
-        description: "Please enter both amount and select a sub-vendor",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsTransferring(true);
-    
-    try {
-      // Simulate web3 interaction
-      toast({
-        title: "Connecting to Web3 Wallet",
-        description: "Please confirm the transaction in your wallet",
-      });
-      
-      // Simulate delay for transaction
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      toast({
-        title: "Tokens Transferred",
-        description: `${transferAmount} CAT tokens transferred to sub-vendor ${selectedVendor}`,
-      });
-      
-      setTransferAmount('');
-      setSubVendorId('');
-      setSelectedVendor('');
-    } catch (error) {
-      toast({
-        title: "Transaction Failed",
-        description: "Failed to transfer tokens. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsTransferring(false);
-    }
-  };
-
-  const handleRepayLoan = (loanId: string, amount: string) => {
+  const handleResolveDispute = (disputeId: string) => {
     toast({
-      title: "Loan Repayment Initiated",
-      description: `Repayment for loan #${loanId} of amount ${amount} initiated`,
+      title: "Dispute Resolution Initiated",
+      description: `Resolution process started for dispute #${disputeId}`,
     });
   };
 
   const stats = [
     {
       title: "Available Token Balance",
-      value: "₹45,000",
-      change: "+₹12,000",
+      value: "₹65,000",
+      change: "-₹5,000",
       icon: Banknote,
     },
     {
-      title: "Tokens Redeemed",
-      value: "₹28,000",
-      change: "+₹5,000",
-      icon: Building,
+      title: "Active Sub-Vendors",
+      value: "8",
+      change: "+1",
+      icon: Users,
     },
     {
-      title: "Sub-Vendors",
-      value: "6",
-      change: "+1",
+      title: "Tokens Received",
+      value: "₹80,000",
+      change: "+₹10,000",
       icon: ArrowRight,
     },
     {
-      title: "Active Loans",
-      value: "₹15,000",
-      change: "Current",
-      icon: TrendingUp,
+      title: "Pending Payments",
+      value: "5",
+      change: "-2",
+      icon: Building,
     },
   ];
 
-  const tokenHistory = [
-    { id: '1', type: 'Received', from: 'TechCorp Industries', amount: '₹15,000', date: '2024-01-15' },
-    { id: '2', type: 'Transferred', to: 'Sub Vendor A', amount: '₹8,000', date: '2024-01-14' },
-    { id: '3', type: 'Redeemed', from: 'Bank Loan', amount: '₹10,000', date: '2024-01-13' },
-  ];
-
-  const activeLoans = [
-    { id: 'L001', amount: '₹8,000', interest: '8.5%', startDate: '2024-01-10', dueDate: '2024-03-10' },
-    { id: 'L002', amount: '₹7,000', interest: '9.0%', startDate: '2024-02-05', dueDate: '2024-04-05' },
-  ];
-
-  const disputedLoans = [
-    { id: 'DL001', bank: 'HDFC Bank', amount: '₹5,000', status: 'Under Review', dateDisputed: '2024-05-10' },
-    { id: 'DL002', bank: 'State Bank', amount: '₹8,000', status: 'Evidence Required', dateDisputed: '2024-05-15' },
-    { id: 'DL003', bank: 'ICICI Bank', amount: '₹3,500', status: 'Mediation', dateDisputed: '2024-05-05' },
-  ];
-
   const subVendors = [
-    { id: 'SV001', name: 'Local Supplier A', balance: '₹5,000', status: 'Active', logo: '🏭', address: '123 Local St, Mumbai' },
-    { id: 'SV002', name: 'Raw Material Supplier', balance: '₹3,200', status: 'Active', logo: '🏗️', address: '456 Raw Ave, Delhi' },
-    { id: 'SV003', name: 'Logistics Partner', balance: '₹1,800', status: 'Pending', logo: '🚚', address: '789 Transport Rd, Pune' },
-    { id: 'SV004', name: 'Equipment Provider', balance: '₹2,500', status: 'Active', logo: '⚙️', address: '101 Equipment Blvd, Chennai' },
+    { id: 'SV001', name: 'Electronic Parts Ltd', pendingAmount: '₹12,000', status: 'Active' },
+    { id: 'SV002', name: 'Packaging Solutions', pendingAmount: '₹6,500', status: 'Active' },
+    { id: 'SV003', name: 'Manufacturing Materials', pendingAmount: '₹18,000', status: 'Pending' },
   ];
 
-  const handleSubVendorSelect = (vendor: any) => {
-    setSubVendorId(vendor.id);
-    setSelectedVendor(vendor.name);
-  };
+  const recentTransactions = [
+    { id: '1', subVendor: 'Electronic Parts Ltd', amount: '₹12,000', date: '2024-01-15', status: 'Completed' },
+    { id: '2', subVendor: 'Packaging Solutions', amount: '₹6,500', date: '2024-01-14', status: 'Completed' },
+    { id: '3', subVendor: 'Manufacturing Materials', amount: '₹9,000', date: '2024-01-13', status: 'Processing' },
+  ];
+
+  const disputes = [
+    { id: 'D001', company: 'TechCorp Industries', bank: 'HDFC Bank', amount: '₹20,000', date: '2024-05-12', status: 'Open' },
+    { id: 'D002', company: 'Innovative Solutions Ltd', bank: 'ICICI Bank', amount: '₹15,000', date: '2024-05-10', status: 'Open' },
+    { id: 'D003', company: 'Global Enterprises Inc', bank: 'SBI', amount: '₹28,000', date: '2024-05-05', status: 'Under Review' }
+  ];
 
   return (
     <DashboardLayout>
@@ -161,7 +104,7 @@ const VendorDashboard = () => {
                   <div>
                     <p className="text-sm font-medium text-gray-600">{stat.title}</p>
                     <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
-                    <p className={`text-sm font-medium ${stat.change.includes('+') ? 'text-green-600' : 'text-blue-600'}`}>
+                    <p className={`text-sm font-medium ${stat.change.includes('+') ? 'text-green-600' : 'text-red-600'}`}>
                       {stat.change}
                     </p>
                   </div>
@@ -171,150 +114,59 @@ const VendorDashboard = () => {
             </Card>
           ))}
         </div>
-
+        
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Redeem Tokens */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Redeem Tokens for Loan</CardTitle>
-              <CardDescription>Exchange tokens for bank financing</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="redeem-amount">Redeem Amount</Label>
-                <Input
-                  id="redeem-amount"
-                  type="number"
-                  placeholder="Enter amount to redeem"
-                  value={redeemAmount}
-                  onChange={(e) => setRedeemAmount(e.target.value)}
-                />
-              </div>
-              <Button onClick={handleRedeemTokens} className="w-full bg-green-600 hover:bg-green-700">
-                Request Loan
-              </Button>
-            </CardContent>
-          </Card>
-
-          {/* Transfer to Sub-Vendors */}
+          {/* Transfer CAT to Sub-Vendors */}
           <Card>
             <CardHeader>
               <CardTitle>Transfer CAT to Sub-Vendors</CardTitle>
-              <CardDescription>Distribute tokens to your suppliers</CardDescription>
+              <CardDescription>Send Credit Access Tokens to your sub-vendors</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="sub-vendor">Sub-Vendor ID</Label>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Input
-                      id="sub-vendor"
-                      placeholder="Select sub-vendor"
-                      value={selectedVendor ? `${subVendorId} - ${selectedVendor}` : ''}
-                      readOnly
-                      className="cursor-pointer"
-                    />
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-[300px] bg-white">
-                    {subVendors.map((vendor) => (
-                      <DropdownMenuItem 
-                        key={vendor.id}
-                        onClick={() => handleSubVendorSelect(vendor)}
-                        className="flex justify-between items-center p-3 hover:bg-gray-100"
-                      >
-                        <div className="flex items-center">
-                          <span className="text-xl mr-3">{vendor.logo}</span>
-                          <div>
-                            <p className="font-medium">{vendor.name}</p>
-                            <p className="text-xs text-gray-600">{vendor.id}</p>
-                            <p className="text-xs text-gray-500">{vendor.address}</p>
-                          </div>
-                        </div>
-                        <span className={`text-sm ${vendor.status === 'Active' ? 'text-green-600' : 'text-orange-600'}`}>
-                          {vendor.status}
-                        </span>
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <Label htmlFor="subvendor">Sub-Vendor ID</Label>
+                <CompanySelectDropdown
+                  options={subVendorCompanies}
+                  value={selectedSubVendorId}
+                  onValueChange={setSelectedSubVendorId}
+                  placeholder="Select sub-vendor"
+                  showAddress={true}
+                />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="transfer-amount">Transfer Amount</Label>
+                <Label htmlFor="amount">Token Amount</Label>
                 <Input
-                  id="transfer-amount"
+                  id="amount"
                   type="number"
                   placeholder="Enter amount"
                   value={transferAmount}
                   onChange={(e) => setTransferAmount(e.target.value)}
                 />
               </div>
-              <Button 
-                onClick={handleTransferToSubVendor} 
-                className="w-full"
-                disabled={isTransferring}
-              >
-                {isTransferring ? "Connecting to Web3 Wallet..." : "Transfer CAT Tokens"}
+              <Button onClick={handleTransferTokens} className="w-full">
+                Transfer Tokens
               </Button>
             </CardContent>
           </Card>
-        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Active Loans */}
+          {/* Sub-Vendor List */}
           <Card>
             <CardHeader>
-              <CardTitle>Active Loans</CardTitle>
-              <CardDescription>Your current bank loans</CardDescription>
+              <CardTitle>Your Sub-Vendors</CardTitle>
+              <CardDescription>Manage your sub-vendor relationships</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {activeLoans.map((loan) => (
-                  <div key={loan.id} className="flex items-center justify-between p-3 border rounded-lg">
+              <div className="space-y-3">
+                {subVendors.map((vendor) => (
+                  <div key={vendor.id} className="flex items-center justify-between p-3 border rounded-lg">
                     <div>
-                      <p className="font-medium">Loan #{loan.id}</p>
-                      <p className="text-sm text-gray-600">
-                        Interest: {loan.interest} | Due: {loan.dueDate}
-                      </p>
-                      <p className="text-xs text-gray-500">{loan.startDate}</p>
+                      <p className="font-medium">{vendor.name}</p>
+                      <p className="text-sm text-gray-600">{vendor.id}</p>
                     </div>
                     <div className="text-right">
-                      <p className="font-medium text-blue-600">{loan.amount}</p>
-                      <Button 
-                        size="sm" 
-                        variant="outline" 
-                        className="mt-1"
-                        onClick={() => handleRepayLoan(loan.id, loan.amount)}
-                      >
-                        <Check className="h-3 w-3 mr-1" /> Repay Loan
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Token History */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Token History</CardTitle>
-              <CardDescription>Your recent token activities</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {tokenHistory.map((item) => (
-                  <div key={item.id} className="flex items-center justify-between p-3 border rounded-lg">
-                    <div>
-                      <p className="font-medium">{item.type}</p>
-                      <p className="text-sm text-gray-600">
-                        {item.from && `From: ${item.from}`}
-                        {item.to && `To: ${item.to}`}
-                      </p>
-                      <p className="text-xs text-gray-500">{item.date}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className={`font-medium ${item.type === 'Received' ? 'text-green-600' : item.type === 'Transferred' ? 'text-blue-600' : 'text-purple-600'}`}>
-                        {item.amount}
+                      <p className="font-medium">{vendor.pendingAmount}</p>
+                      <p className={`text-sm ${vendor.status === 'Active' ? 'text-green-600' : 'text-orange-600'}`}>
+                        {vendor.status}
                       </p>
                     </div>
                   </div>
@@ -323,65 +175,85 @@ const VendorDashboard = () => {
             </CardContent>
           </Card>
         </div>
-
-        {/* Disputed Loans */}
+        
+        {/* Recent Transactions */}
         <Card>
           <CardHeader>
-            <div className="flex items-center space-x-2">
-              <AlertTriangle className="h-5 w-5 text-amber-500" />
-              <CardTitle>Disputed Loans</CardTitle>
-            </div>
-            <CardDescription>Loans currently under dispute</CardDescription>
+            <CardTitle>Recent Token Transactions</CardTitle>
+            <CardDescription>Your latest token transactions</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {disputedLoans.map((loan) => (
-                <div key={loan.id} className="flex items-center justify-between p-3 border rounded-lg">
-                  <div>
-                    <p className="font-medium">Dispute #{loan.id}</p>
-                    <p className="text-sm text-gray-600">
-                      Bank: {loan.bank}
-                    </p>
-                    <p className="text-xs text-gray-500">Disputed on: {loan.dateDisputed}</p>
+              {recentTransactions.map((transfer) => (
+                <div key={transfer.id} className="flex items-center justify-between p-4 border rounded-lg">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                      <ArrowRight className="h-5 w-5 text-blue-600" />
+                    </div>
+                    <div>
+                      <p className="font-medium">{transfer.subVendor}</p>
+                      <p className="text-sm text-gray-600">{transfer.date}</p>
+                    </div>
                   </div>
                   <div className="text-right">
-                    <p className="font-medium text-red-600">{loan.amount}</p>
-                    <span className="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800">
-                      {loan.status}
-                    </span>
+                    <p className="font-medium text-lg">{transfer.amount}</p>
+                    <p className={`text-sm ${transfer.status === 'Completed' ? 'text-green-600' : 'text-orange-600'}`}>
+                      {transfer.status}
+                    </p>
                   </div>
                 </div>
               ))}
             </div>
           </CardContent>
         </Card>
-
-        {/* Sub-Vendors */}
+        
+        {/* Dispute Resolution */}
         <Card>
           <CardHeader>
-            <CardTitle>Your Sub-Vendors</CardTitle>
-            <CardDescription>Suppliers in your network</CardDescription>
+            <CardTitle>Dispute Resolution</CardTitle>
+            <CardDescription>Manage active loan disputes with companies and banks</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
-              {subVendors.map((vendor) => (
-                <div key={vendor.id} className="flex items-center justify-between p-3 border rounded-lg">
-                  <div className="flex items-center">
-                    <span className="text-xl mr-3">{vendor.logo}</span>
-                    <div>
-                      <p className="font-medium">{vendor.name}</p>
-                      <p className="text-sm text-gray-600">{vendor.id}</p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-medium">{vendor.balance}</p>
-                    <p className={`text-sm ${vendor.status === 'Active' ? 'text-green-600' : 'text-orange-600'}`}>
-                      {vendor.status}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>ID</TableHead>
+                  <TableHead>Company</TableHead>
+                  <TableHead>Bank</TableHead>
+                  <TableHead>Amount</TableHead>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Action</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {disputes.map((dispute) => (
+                  <TableRow key={dispute.id}>
+                    <TableCell>{dispute.id}</TableCell>
+                    <TableCell>{dispute.company}</TableCell>
+                    <TableCell>{dispute.bank}</TableCell>
+                    <TableCell>{dispute.amount}</TableCell>
+                    <TableCell>{dispute.date}</TableCell>
+                    <TableCell>
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        dispute.status === 'Open' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'
+                      }`}>
+                        {dispute.status}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => handleResolveDispute(dispute.id)}
+                      >
+                        Resolve
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </CardContent>
         </Card>
       </div>
