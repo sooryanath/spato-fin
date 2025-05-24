@@ -5,14 +5,17 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
-import { Banknote, Building, TrendingUp, Users } from 'lucide-react';
+import { Banknote, Building, TrendingUp, Users, AlertTriangle } from 'lucide-react';
 import DashboardLayout from '@/components/DashboardLayout';
 import { toast } from '@/hooks/use-toast';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 const BankDashboard = () => {
   const { user } = useAuth();
   const [issueAmount, setIssueAmount] = useState('');
   const [companyId, setCompanyId] = useState('');
+  const [disputeReason, setDisputeReason] = useState('');
+  const [showDisputeDialog, setShowDisputeDialog] = useState<string | null>(null);
 
   const handleIssueTokens = () => {
     if (!issueAmount || !companyId) {
@@ -31,6 +34,24 @@ const BankDashboard = () => {
     });
     setIssueAmount('');
     setCompanyId('');
+  };
+
+  const handleDispute = (loanId: string) => {
+    if (!disputeReason) {
+      toast({
+        title: "Missing Reason",
+        description: "Please provide a reason for the dispute",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    toast({
+      title: "Loan Disputed",
+      description: `Dispute filed for loan #${loanId} successfully`,
+    });
+    setShowDisputeDialog(null);
+    setDisputeReason('');
   };
 
   const stats = [
@@ -58,6 +79,18 @@ const BankDashboard = () => {
       change: "+15",
       icon: Users,
     },
+  ];
+
+  const activeLoans = [
+    { id: 'L1001', vendor: 'Tech Solutions Ltd', amount: '₹75,000', dueDate: '2024-06-15', totalAmount: '₹82,500', remainingAmount: '₹82,500' },
+    { id: 'L1002', vendor: 'Manufacturing Experts', amount: '₹50,000', dueDate: '2024-06-20', totalAmount: '₹55,000', remainingAmount: '₹30,000' },
+    { id: 'L1003', vendor: 'Supply Chain Partners', amount: '₹1,25,000', dueDate: '2024-07-05', totalAmount: '₹1,37,500', remainingAmount: '₹1,37,500' },
+  ];
+
+  const disputedLoans = [
+    { id: 'L0987', vendor: 'Hardware Suppliers', company: 'TechCorp Industries', amount: '₹45,000', status: 'Under Review', dateDisputed: '2024-05-10' },
+    { id: 'L0876', vendor: 'Software Solutions', company: 'Global Manufacturing', amount: '₹1,20,000', status: 'Evidence Required', dateDisputed: '2024-05-05' },
+    { id: 'L0765', vendor: 'Logistics Partner', company: 'Supply Chain Ltd', amount: '₹35,000', status: 'Mediation', dateDisputed: '2024-04-28' },
   ];
 
   const recentTransactions = [
@@ -152,6 +185,102 @@ const BankDashboard = () => {
             </CardContent>
           </Card>
         </div>
+
+        {/* Active Loans Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Active Loans</CardTitle>
+            <CardDescription>Current outstanding loans issued to vendors</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Loan ID</TableHead>
+                  <TableHead>Vendor Name</TableHead>
+                  <TableHead>Amount</TableHead>
+                  <TableHead>Due Date</TableHead>
+                  <TableHead>Total / Remaining</TableHead>
+                  <TableHead>Action</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {activeLoans.map((loan) => (
+                  <TableRow key={loan.id}>
+                    <TableCell className="font-medium">{loan.id}</TableCell>
+                    <TableCell>{loan.vendor}</TableCell>
+                    <TableCell>{loan.amount}</TableCell>
+                    <TableCell>{loan.dueDate}</TableCell>
+                    <TableCell>
+                      {loan.totalAmount} / {loan.remainingAmount}
+                    </TableCell>
+                    <TableCell>
+                      {showDisputeDialog === loan.id ? (
+                        <div className="space-y-2">
+                          <Input 
+                            value={disputeReason} 
+                            onChange={(e) => setDisputeReason(e.target.value)}
+                            placeholder="Reason for dispute"
+                            className="text-sm"
+                          />
+                          <div className="flex gap-2">
+                            <Button size="sm" variant="destructive" onClick={() => handleDispute(loan.id)}>Submit</Button>
+                            <Button size="sm" variant="outline" onClick={() => setShowDisputeDialog(null)}>Cancel</Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <Button variant="outline" size="sm" onClick={() => setShowDisputeDialog(loan.id)}>
+                          Dispute
+                        </Button>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+
+        {/* Disputed Loans Section */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center space-x-2">
+              <AlertTriangle className="h-5 w-5 text-amber-500" />
+              <CardTitle>Disputed Loans</CardTitle>
+            </div>
+            <CardDescription>Loans currently under dispute resolution</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Loan ID</TableHead>
+                  <TableHead>Vendor</TableHead>
+                  <TableHead>Syndicate Company</TableHead>
+                  <TableHead>Amount</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Date Disputed</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {disputedLoans.map((loan) => (
+                  <TableRow key={loan.id}>
+                    <TableCell className="font-medium">{loan.id}</TableCell>
+                    <TableCell>{loan.vendor}</TableCell>
+                    <TableCell>{loan.company}</TableCell>
+                    <TableCell>{loan.amount}</TableCell>
+                    <TableCell>
+                      <span className="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800">
+                        {loan.status}
+                      </span>
+                    </TableCell>
+                    <TableCell>{loan.dateDisputed}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
       </div>
     </DashboardLayout>
   );
