@@ -32,7 +32,7 @@ interface CompanySelectDropdownProps {
 export const CompanySelectDropdown = ({
   value,
   onValueChange,
-  companies = [],
+  companies,
   placeholder = "Select company",
 }: CompanySelectDropdownProps) => {
   const [open, setOpen] = useState(false);
@@ -47,7 +47,7 @@ export const CompanySelectDropdown = ({
           className="w-full justify-between"
         >
           {value
-            ? companies.find((company) => company.id === value)?.name || placeholder
+            ? companies?.find((company) => company.id === value)?.name || placeholder
             : placeholder}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
@@ -57,11 +57,11 @@ export const CompanySelectDropdown = ({
           <CommandInput placeholder="Search company..." />
           <CommandEmpty>No company found.</CommandEmpty>
           <CommandGroup>
-            {companies && companies.length > 0 ? companies.map((company) => (
+            {companies?.map((company) => (
               <CommandItem
                 key={company.id}
                 value={company.id}
-                onSelect={() => {
+                onSelect={(currentValue) => {
                   onValueChange(company.id);
                   setOpen(false);
                 }}
@@ -87,9 +87,7 @@ export const CompanySelectDropdown = ({
                   )}
                 />
               </CommandItem>
-            )) : (
-              <div className="p-2 text-sm text-center text-gray-500">No companies available</div>
-            )}
+            ))}
           </CommandGroup>
         </Command>
       </PopoverContent>
