@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 export type UserRole = 'bank' | 'company' | 'vendor';
@@ -8,7 +9,6 @@ export interface User {
   email: string;
   role: UserRole;
   organizationName: string;
-  username?: string;  // Added username property
 }
 
 interface AuthContextType {
@@ -43,24 +43,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         name: 'John Smith',
         email: 'bank@hdfc.com',
         role: 'bank',
-        organizationName: 'HDFC Bank',
-        username: 'bankadmin'
+        organizationName: 'HDFC Bank'
       },
       {
         id: '2',
         name: 'Sarah Johnson',
         email: 'finance@techcorp.com',
         role: 'company',
-        organizationName: 'TechCorp Industries',
-        username: 'techcorp'
+        organizationName: 'TechCorp Industries'
       },
       {
         id: '3',
         name: 'Mike Chen',
         email: 'vendor@supplies.com',
         role: 'vendor',
-        organizationName: 'Global Supplies Ltd',
-        username: 'suppliesvendor'
+        organizationName: 'Global Supplies Ltd'
       }
     ];
 
