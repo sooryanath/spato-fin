@@ -101,36 +101,6 @@ const Index = () => {
             </Card>
           ))}
         </div>
-
-        {/* Flow Diagram */}
-        <div className="bg-white rounded-lg shadow-lg p-8">
-          <h2 className="text-2xl font-bold text-center mb-8">How It Works</h2>
-          <div className="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0 md:space-x-8">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Banknote className="h-8 w-8 text-blue-600" />
-              </div>
-              <h3 className="font-semibold mb-2">Banks Issue Tokens</h3>
-              <p className="text-sm text-gray-600">Banks create and distribute CAT to the syndicate companies as per agreement in promotional to the work estimates</p>
-            </div>
-            <ArrowRight className="h-6 w-6 text-gray-400 hidden md:block" />
-            <div className="text-center">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Building className="h-8 w-8 text-green-600" />
-              </div>
-              <h3 className="font-semibold mb-2">Syndicate Companies</h3>
-              <p className="text-sm text-gray-600">Syndicate companies transfer CAT tokens to their main vendors for accessing formal loans from bank.</p>
-            </div>
-            <ArrowRight className="h-6 w-6 text-gray-400 hidden md:block" />
-            <div className="text-center">
-              <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Users className="h-8 w-8 text-purple-600" />
-              </div>
-              <h3 className="font-semibold mb-2">Vendors Redeem</h3>
-              <p className="text-sm text-gray-600">Vendors can redeem CAT for loans from bank or transfer CAT to their own sub vendors. In case of dispute with repayment, syndicate company will pay directly to the bank</p>
-            </div>
-          </div>
-        </div>
       </main>
     </div>
   );
