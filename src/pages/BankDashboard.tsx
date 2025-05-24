@@ -1,27 +1,31 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
-import { Banknote, Building, TrendingUp, Users, AlertTriangle } from 'lucide-react';
+import { Banknote, Building, TrendingUp, Users, AlertTriangle, ExternalLink } from 'lucide-react';
 import DashboardLayout from '@/components/DashboardLayout';
 import { toast } from '@/hooks/use-toast';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import CompanySelectDropdown from '@/components/CompanySelectDropdown';
+import LoanDisputeDialog from '@/components/LoanDisputeDialog';
 
 const BankDashboard = () => {
   const { user } = useAuth();
   const [issueAmount, setIssueAmount] = useState('');
   const [companyId, setCompanyId] = useState('');
+  const [companyName, setCompanyName] = useState('');
   const [disputeReason, setDisputeReason] = useState('');
   const [showDisputeDialog, setShowDisputeDialog] = useState<string | null>(null);
+  const [selectedDisputedLoan, setSelectedDisputedLoan] = useState<any | null>(null);
+  const [isDisputeDialogOpen, setIsDisputeDialogOpen] = useState(false);
 
   const handleIssueTokens = () => {
     if (!issueAmount || !companyId) {
       toast({
         title: "Missing Information",
-        description: "Please enter both amount and company ID",
+        description: "Please enter both amount and select a company",
         variant: "destructive",
       });
       return;
@@ -30,10 +34,11 @@ const BankDashboard = () => {
     // Simulate token issuance
     toast({
       title: "Tokens Issued Successfully",
-      description: `${issueAmount} tokens issued to company ${companyId}`,
+      description: `${issueAmount} tokens issued to ${companyName} (${companyId})`,
     });
     setIssueAmount('');
     setCompanyId('');
+    setCompanyName('');
   };
 
   const handleDispute = (loanId: string) => {
@@ -52,6 +57,16 @@ const BankDashboard = () => {
     });
     setShowDisputeDialog(null);
     setDisputeReason('');
+  };
+
+  const handleOpenDisputeCase = (loan: any) => {
+    setSelectedDisputedLoan(loan);
+    setIsDisputeDialogOpen(true);
+  };
+
+  const handleSelectCompany = (id: string, name: string) => {
+    setCompanyId(id);
+    setCompanyName(name);
   };
 
   const stats = [
@@ -88,9 +103,33 @@ const BankDashboard = () => {
   ];
 
   const disputedLoans = [
-    { id: 'L0987', vendor: 'Hardware Suppliers', company: 'TechCorp Industries', amount: '₹45,000', status: 'Under Review', dateDisputed: '2024-05-10' },
-    { id: 'L0876', vendor: 'Software Solutions', company: 'Global Manufacturing', amount: '₹1,20,000', status: 'Evidence Required', dateDisputed: '2024-05-05' },
-    { id: 'L0765', vendor: 'Logistics Partner', company: 'Supply Chain Ltd', amount: '₹35,000', status: 'Mediation', dateDisputed: '2024-04-28' },
+    { 
+      id: 'L0987', 
+      vendor: 'Hardware Suppliers', 
+      company: 'TechCorp Industries', 
+      amount: '₹45,000', 
+      status: 'Under Review', 
+      dateDisputed: '2024-05-10',
+      details: 'Dispute regarding payment terms and delivery timeline. Vendor claims payment terms were not met as per contract.'
+    },
+    { 
+      id: 'L0876', 
+      vendor: 'Software Solutions', 
+      company: 'Global Manufacturing', 
+      amount: '₹1,20,000', 
+      status: 'Evidence Required', 
+      dateDisputed: '2024-05-05',
+      details: 'Documentation missing for partial payment. Company requesting additional invoice proof before releasing remaining funds.'
+    },
+    { 
+      id: 'L0765', 
+      vendor: 'Logistics Partner', 
+      company: 'Supply Chain Ltd', 
+      amount: '₹35,000', 
+      status: 'Mediation', 
+      dateDisputed: '2024-04-28',
+      details: 'Service quality dispute. Both parties have submitted evidence and case is now in mediation phase.'
+    },
   ];
 
   const recentTransactions = [
@@ -135,13 +174,8 @@ const BankDashboard = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="company">Company ID</Label>
-                <Input
-                  id="company"
-                  placeholder="Enter company identifier"
-                  value={companyId}
-                  onChange={(e) => setCompanyId(e.target.value)}
-                />
+                <Label htmlFor="company">Select Syndicate Company</Label>
+                <CompanySelectDropdown onSelect={handleSelectCompany} />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="amount">Token Amount</Label>
@@ -260,6 +294,7 @@ const BankDashboard = () => {
                   <TableHead>Amount</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Date Disputed</TableHead>
+                  <TableHead>Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -275,12 +310,31 @@ const BankDashboard = () => {
                       </span>
                     </TableCell>
                     <TableCell>{loan.dateDisputed}</TableCell>
+                    <TableCell>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        className="flex items-center gap-1"
+                        onClick={() => handleOpenDisputeCase(loan)}
+                      >
+                        Open <ExternalLink className="h-3 w-3" />
+                      </Button>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
           </CardContent>
         </Card>
+
+        {/* Loan Dispute Dialog */}
+        {selectedDisputedLoan && (
+          <LoanDisputeDialog 
+            loan={selectedDisputedLoan}
+            open={isDisputeDialogOpen}
+            onOpenChange={setIsDisputeDialogOpen}
+          />
+        )}
       </div>
     </DashboardLayout>
   );
