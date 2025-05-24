@@ -25,7 +25,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
               <Banknote className="h-8 w-8 text-blue-600 mr-2" />
-              <h1 className="text-xl font-bold text-gray-900">TokenFlow Platform</h1>
+              <h1 className="text-xl font-bold text-gray-900">Spato Finance</h1>
             </div>
             <div className="flex items-center space-x-4">
               <span className="text-sm text-gray-600">
@@ -54,7 +54,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center text-sm text-gray-500">
             <p>API Integrations: GSTN (Ready) • Banking APIs (Ready)</p>
-            <p>© 2024 TokenFlow Platform</p>
+            <p>© 2024 Spato Finance</p>
           </div>
         </div>
       </footer>

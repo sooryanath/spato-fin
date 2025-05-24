@@ -21,18 +21,18 @@ const Index = () => {
   const features = [
     {
       icon: Banknote,
-      title: 'Token Issuance',
-      description: 'Banks can issue digital tokens to companies for supply chain financing',
+      title: 'Credit Access Tokens',
+      description: 'Banks can issue Credit Access Tokens (CAT) to companies for supply chain financing',
     },
     {
       icon: Building,
-      title: 'Company Management',
-      description: 'Companies can transfer tokens to vendors and manage their supply chain',
+      title: 'Syndicate Management',
+      description: 'Syndicate companies can transfer CAT tokens to their vendors to finance their work',
     },
     {
       icon: Users,
       title: 'Vendor Network',
-      description: 'Vendors can redeem tokens for loans or transfer to their own suppliers',
+      description: 'Vendors can redeem CAT for loans from bank or transfer CAT to their own sub vendors',
     },
   ];
 
@@ -44,7 +44,7 @@ const Index = () => {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
               <Banknote className="h-8 w-8 text-blue-600 mr-2" />
-              <h1 className="text-xl font-bold text-gray-900">TokenFlow Platform</h1>
+              <h1 className="text-xl font-bold text-gray-900">Spato Finance</h1>
             </div>
             <div className="flex items-center space-x-4">
               {user ? (
@@ -73,12 +73,12 @@ const Index = () => {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="text-center mb-16">
           <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
-            Digital Token Platform for{' '}
-            <span className="text-blue-600">Supply Chain Finance</span>
+            Digital platform for{' '}
+            <span className="text-blue-600">Deep Tire Financing</span>
           </h1>
           <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-            Connect banks, companies, and vendors in a seamless token-based ecosystem. 
-            Enable efficient supply chain financing with digital tokens.
+            Connect Banks, NBFCs other formal lenders, syndicate companies and vendors in a seamless token gated ecosystem. 
+            Enable efficient deep tire financing with blockchain and Credit Access Tokens.
           </p>
           <Button onClick={handleGetStarted} size="lg" className="bg-blue-600 hover:bg-blue-700">
             Get Started <ArrowRight className="ml-2 h-5 w-5" />
@@ -111,15 +111,15 @@ const Index = () => {
                 <Banknote className="h-8 w-8 text-blue-600" />
               </div>
               <h3 className="font-semibold mb-2">Banks Issue Tokens</h3>
-              <p className="text-sm text-gray-600">Banks create and distribute digital tokens to companies</p>
+              <p className="text-sm text-gray-600">Banks create and distribute CAT to the syndicate companies as per agreement in promotional to the work estimates</p>
             </div>
             <ArrowRight className="h-6 w-6 text-gray-400 hidden md:block" />
             <div className="text-center">
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Building className="h-8 w-8 text-green-600" />
               </div>
-              <h3 className="font-semibold mb-2">Companies Transfer</h3>
-              <p className="text-sm text-gray-600">Companies use tokens to pay vendors in their supply chain</p>
+              <h3 className="font-semibold mb-2">Syndicate Companies</h3>
+              <p className="text-sm text-gray-600">Syndicate companies transfer CAT tokens to their main vendors for accessing formal loans from bank. In case of any dispute with vendors and bank in repayment, company will repay the money directly to bank</p>
             </div>
             <ArrowRight className="h-6 w-6 text-gray-400 hidden md:block" />
             <div className="text-center">
@@ -127,7 +127,7 @@ const Index = () => {
                 <Users className="h-8 w-8 text-purple-600" />
               </div>
               <h3 className="font-semibold mb-2">Vendors Redeem</h3>
-              <p className="text-sm text-gray-600">Vendors can redeem tokens for loans or transfer to suppliers</p>
+              <p className="text-sm text-gray-600">Vendors can redeem CAT for loans from bank or transfer CAT to their own sub vendors. In case of dispute with repayment, syndicate company will pay directly to the bank</p>
             </div>
           </div>
         </div>

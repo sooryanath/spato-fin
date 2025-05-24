@@ -25,7 +25,7 @@ const Login = () => {
       if (success) {
         toast({
           title: "Login successful",
-          description: "Welcome to TokenFlow Platform",
+          description: "Welcome to Spato Finance",
         });
         // Navigation will be handled by the auth context
         const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -59,7 +59,7 @@ const Login = () => {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <Banknote className="h-12 w-12 text-blue-600 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-gray-900">TokenFlow Platform</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Spato Finance</h1>
           <p className="text-gray-600">Sign in to your account</p>
         </div>
 
