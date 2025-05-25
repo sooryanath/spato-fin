@@ -1,4 +1,3 @@
-
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useNavigate } from 'react-router-dom';
@@ -43,7 +42,7 @@ const Docs = () => {
           </div>
 
           {/* Overview */}
-          <section>
+          <section className="bg-white border border-gray-300 p-6 rounded-lg">
             <h2 className="text-2xl font-semibold text-gray-800 mb-4">Overview</h2>
             <p className="text-gray-700 mb-6">
               This platform facilitates structured, secure credit distribution across complex supply chains using a novel <strong className="text-gray-800">Token-Gated Credit Access System</strong>. It connects four key participants:
@@ -81,7 +80,7 @@ const Docs = () => {
           </section>
 
           {/* Problem */}
-          <section className="bg-gray-50 border border-gray-200 p-6 rounded-lg">
+          <section className="bg-white border border-gray-300 p-6 rounded-lg">
             <h2 className="text-2xl font-semibold text-gray-800 mb-4">Problem</h2>
             <p className="text-gray-700">
               Banks are comfortable lending to syndicate companies due to their size and credit history. However, vendors and sub-vendors—despite being operationally vital—often lack the digital footprint or documentation to access timely formal credit. This gap is known as the <strong className="text-gray-800">deep tier financing problem</strong>.
@@ -89,24 +88,24 @@ const Docs = () => {
           </section>
 
           {/* Solution */}
-          <section className="bg-gray-800 border border-gray-600 p-6 rounded-lg text-white">
-            <h2 className="text-2xl font-semibold text-white mb-4">Solution: Token-Gated Credit Access System (TGCAS)</h2>
-            <p className="text-gray-200 mb-6">
-              TGCAS introduces <strong className="text-white">Credit Access Tokens (CATs)</strong> as programmable, trackable instruments of credit assurance across tiers of the supply chain.
+          <section className="bg-white border border-gray-300 p-6 rounded-lg">
+            <h2 className="text-2xl font-semibold text-gray-800 mb-4">Solution: Token-Gated Credit Access System (TGCAS)</h2>
+            <p className="text-gray-700 mb-6">
+              TGCAS introduces <strong className="text-gray-800">Credit Access Tokens (CATs)</strong> as programmable, trackable instruments of credit assurance across tiers of the supply chain.
             </p>
             
-            <h3 className="text-xl font-semibold text-white mb-4">How it Works:</h3>
+            <h3 className="text-xl font-semibold text-gray-800 mb-4">How it Works:</h3>
             <div className="space-y-4">
               <div>
-                <h4 className="font-semibold text-white mb-2">1. CAT Issuance:</h4>
-                <ul className="list-disc list-inside ml-4 text-gray-200 space-y-1">
+                <h4 className="font-semibold text-gray-800 mb-2">1. CAT Issuance:</h4>
+                <ul className="list-disc list-inside ml-4 text-gray-700 space-y-1">
                   <li>Syndicate companies request CATs from banks based on signed work orders.</li>
                   <li>Banks evaluate and issue CATs to syndicate companies accordingly.</li>
                 </ul>
               </div>
               <div>
-                <h4 className="font-semibold text-white mb-2">2. CAT Distribution:</h4>
-                <ul className="list-disc list-inside ml-4 text-gray-200 space-y-1">
+                <h4 className="font-semibold text-gray-800 mb-2">2. CAT Distribution:</h4>
+                <ul className="list-disc list-inside ml-4 text-gray-700 space-y-1">
                   <li>Syndicate companies distribute CATs to vendors when awarding work.</li>
                   <li>Vendors can:
                     <ul className="list-disc list-inside ml-6 mt-1 space-y-1">
@@ -117,24 +116,24 @@ const Docs = () => {
                 </ul>
               </div>
               <div>
-                <h4 className="font-semibold text-white mb-2">3. Credit Redemption:</h4>
-                <ul className="list-disc list-inside ml-4 text-gray-200 space-y-1">
+                <h4 className="font-semibold text-gray-800 mb-2">3. Credit Redemption:</h4>
+                <ul className="list-disc list-inside ml-4 text-gray-700 space-y-1">
                   <li>Sub-vendors can redeem CATs at partner banks for loans.</li>
                   <li>In case of repayment failure, the bank is guaranteed repayment directly by the syndicate company as per prior agreement.</li>
                 </ul>
               </div>
             </div>
-            <p className="text-gray-200 mt-4 font-medium">
-              This mechanism establishes <strong className="text-white">credit trust</strong> beyond the first tier.
+            <p className="text-gray-700 mt-4 font-medium">
+              This mechanism establishes <strong className="text-gray-800">credit trust</strong> beyond the first tier.
             </p>
           </section>
 
           {/* Key Process Flows */}
-          <section>
+          <section className="bg-white border border-gray-300 p-6 rounded-lg">
             <h2 className="text-2xl font-semibold text-gray-800 mb-4">Key Process Flows</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card className="bg-gray-50 border-gray-300">
+              <Card className="bg-white border-gray-300">
                 <CardHeader>
                   <CardTitle className="text-gray-800">Flow 1: CAT Lifecycle</CardTitle>
                 </CardHeader>
@@ -149,12 +148,12 @@ const Docs = () => {
                 </CardContent>
               </Card>
 
-              <Card className="bg-gray-800 border-gray-600 text-white">
+              <Card className="bg-white border-gray-300">
                 <CardHeader>
-                  <CardTitle className="text-white">Flow 2: Dispute Resolution</CardTitle>
+                  <CardTitle className="text-gray-800">Flow 2: Dispute Resolution</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <ol className="list-decimal list-inside space-y-2 text-gray-200">
+                  <ol className="list-decimal list-inside space-y-2 text-gray-700">
                     <li>Vendor/Sub-vendor defaults or under-delivers</li>
                     <li>Bank flags loan as disputed</li>
                     <li>Syndicate Company steps in:
@@ -170,7 +169,7 @@ const Docs = () => {
           </section>
 
           {/* Bank Dashboard Experience */}
-          <section className="bg-gray-50 border border-gray-200 p-6 rounded-lg">
+          <section className="bg-white border border-gray-300 p-6 rounded-lg">
             <h2 className="text-2xl font-semibold text-gray-800 mb-4">Bank Dashboard Experience</h2>
             <p className="text-gray-700 mb-6">
               The <strong className="text-gray-800">Bank Dashboard</strong> is the control center for managing CAT issuance, monitoring vendor engagement, tracking active loans, and resolving disputes.
@@ -221,8 +220,8 @@ const Docs = () => {
           </section>
 
           {/* Company Dashboard Experience */}
-          <section className="bg-gray-800 border border-gray-600 p-6 rounded-lg text-white">
-            <h2 className="text-2xl font-semibold text-white mb-4">Company Dashboard Experience</h2>
+          <section className="bg-white border border-gray-300 p-6 rounded-lg">
+            <h2 className="text-2xl font-semibold text-gray-800 mb-4">Company Dashboard Experience</h2>
             <p className="text-gray-200 mb-6">
               The <strong className="text-white">Company Dashboard</strong> enables syndicate companies to manage their CAT requests, distribute tokens to vendors, and oversee their supply chain financing operations.
             </p>
@@ -272,7 +271,7 @@ const Docs = () => {
           </section>
 
           {/* Vendor Dashboard Experience */}
-          <section className="bg-gray-50 border border-gray-200 p-6 rounded-lg">
+          <section className="bg-white border border-gray-300 p-6 rounded-lg">
             <h2 className="text-2xl font-semibold text-gray-800 mb-4">Vendor Dashboard Experience</h2>
             <p className="text-gray-700 mb-6">
               The <strong className="text-gray-800">Vendor Dashboard</strong> provides vendors with tools to manage received CATs, access working capital, and distribute tokens to their sub-vendors.
@@ -323,9 +322,9 @@ const Docs = () => {
           </section>
 
           {/* Next Steps */}
-          <section className="bg-gray-800 border border-gray-600 p-6 rounded-lg">
-            <p className="text-gray-200 font-medium">
-              <strong className="text-white">Implementation Status:</strong> All participant dashboards (Bank, Company, Vendor) have been documented and are ready for development. Sub-vendor functionality can be added as an extension of the vendor dashboard.
+          <section className="bg-white border border-gray-300 p-6 rounded-lg">
+            <p className="text-gray-700 font-medium">
+              <strong className="text-gray-800">Implementation Status:</strong> All participant dashboards (Bank, Company, Vendor) have been documented and are ready for development. Sub-vendor functionality can be added as an extension of the vendor dashboard.
             </p>
           </section>
         </div>
