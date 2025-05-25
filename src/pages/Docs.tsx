@@ -1,3 +1,4 @@
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useNavigate } from 'react-router-dom';
@@ -222,51 +223,51 @@ const Docs = () => {
           {/* Company Dashboard Experience */}
           <section className="bg-white border border-gray-300 p-6 rounded-lg">
             <h2 className="text-2xl font-semibold text-gray-800 mb-4">Company Dashboard Experience</h2>
-            <p className="text-gray-200 mb-6">
-              The <strong className="text-white">Company Dashboard</strong> enables syndicate companies to manage their CAT requests, distribute tokens to vendors, and oversee their supply chain financing operations.
+            <p className="text-gray-700 mb-6">
+              The <strong className="text-gray-800">Company Dashboard</strong> enables syndicate companies to manage their CAT requests, distribute tokens to vendors, and oversee their supply chain financing operations.
             </p>
             
-            <h3 className="text-xl font-semibold text-white mb-4">Dashboard Modules:</h3>
+            <h3 className="text-xl font-semibold text-gray-800 mb-4">Dashboard Modules:</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-3">
                 <div>
-                  <h4 className="font-semibold text-white mb-1">1. Overview Metrics:</h4>
-                  <ul className="list-disc list-inside ml-4 text-gray-200 text-sm">
+                  <h4 className="font-semibold text-gray-800 mb-1">1. Overview Metrics:</h4>
+                  <ul className="list-disc list-inside ml-4 text-gray-700 text-sm">
                     <li>Total CATs received from banks</li>
                     <li>CATs distributed to vendors</li>
                     <li>Active vendor relationships</li>
                   </ul>
                 </div>
                 <div>
-                  <h4 className="font-semibold text-white mb-1">2. Request CAT:</h4>
-                  <p className="ml-4 text-gray-200 text-sm">Submit new CAT requests to banks with work order documentation and track approval status.</p>
+                  <h4 className="font-semibold text-gray-800 mb-1">2. Request CAT:</h4>
+                  <p className="ml-4 text-gray-700 text-sm">Submit new CAT requests to banks with work order documentation and track approval status.</p>
                 </div>
                 <div>
-                  <h4 className="font-semibold text-white mb-1">3. Transfer Tokens:</h4>
-                  <p className="ml-4 text-gray-200 text-sm">Distribute received CATs to vendors based on work allocations and project requirements.</p>
+                  <h4 className="font-semibold text-gray-800 mb-1">3. Transfer Tokens:</h4>
+                  <p className="ml-4 text-gray-700 text-sm">Distribute received CATs to vendors based on work allocations and project requirements.</p>
                 </div>
               </div>
               <div className="space-y-3">
                 <div>
-                  <h4 className="font-semibold text-white mb-1">4. Vendor Management:</h4>
-                  <p className="ml-4 text-gray-200 text-sm">View registered vendors, their token allocation history, and performance metrics.</p>
+                  <h4 className="font-semibold text-gray-800 mb-1">4. Vendor Management:</h4>
+                  <p className="ml-4 text-gray-700 text-sm">View registered vendors, their token allocation history, and performance metrics.</p>
                 </div>
                 <div>
-                  <h4 className="font-semibold text-white mb-1">5. CAT Request History:</h4>
-                  <p className="ml-4 text-gray-200 text-sm">Track all submitted requests to banks with status updates and approval timelines.</p>
+                  <h4 className="font-semibold text-gray-800 mb-1">5. CAT Request History:</h4>
+                  <p className="ml-4 text-gray-700 text-sm">Track all submitted requests to banks with status updates and approval timelines.</p>
                 </div>
                 <div>
-                  <h4 className="font-semibold text-white mb-1">6. Guarantee Obligations:</h4>
-                  <p className="ml-4 text-gray-200 text-sm">Monitor potential liabilities from vendor defaults and manage dispute resolution processes.</p>
+                  <h4 className="font-semibold text-gray-800 mb-1">6. Guarantee Obligations:</h4>
+                  <p className="ml-4 text-gray-700 text-sm">Monitor potential liabilities from vendor defaults and manage dispute resolution processes.</p>
                 </div>
               </div>
             </div>
 
-            <h3 className="text-xl font-semibold text-white mt-6 mb-3">Example Use Cases:</h3>
-            <ul className="list-disc list-inside text-gray-200 space-y-1">
-              <li><strong className="text-white">Project Planning:</strong> Request appropriate CAT amounts based on upcoming project requirements.</li>
-              <li><strong className="text-white">Vendor Allocation:</strong> Distribute tokens efficiently across multiple vendors for different project phases.</li>
-              <li><strong className="text-white">Risk Management:</strong> Monitor which vendors have redeemed tokens and potential exposure from guarantees.</li>
+            <h3 className="text-xl font-semibold text-gray-800 mt-6 mb-3">Example Use Cases:</h3>
+            <ul className="list-disc list-inside text-gray-700 space-y-1">
+              <li><strong className="text-gray-800">Project Planning:</strong> Request appropriate CAT amounts based on upcoming project requirements.</li>
+              <li><strong className="text-gray-800">Vendor Allocation:</strong> Distribute tokens efficiently across multiple vendors for different project phases.</li>
+              <li><strong className="text-gray-800">Risk Management:</strong> Monitor which vendors have redeemed tokens and potential exposure from guarantees.</li>
             </ul>
           </section>
 
