@@ -220,10 +220,112 @@ const Docs = () => {
             </ul>
           </section>
 
+          {/* Company Dashboard Experience */}
+          <section className="bg-purple-900/20 border border-purple-800 p-6 rounded-lg">
+            <h2 className="text-2xl font-semibold text-purple-300 mb-4">Company Dashboard Experience</h2>
+            <p className="text-gray-300 mb-6">
+              The <strong className="text-white">Company Dashboard</strong> enables syndicate companies to manage their CAT requests, distribute tokens to vendors, and oversee their supply chain financing operations.
+            </p>
+            
+            <h3 className="text-xl font-semibold text-purple-300 mb-4">Dashboard Modules:</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-3">
+                <div>
+                  <h4 className="font-semibold text-white mb-1">1. Overview Metrics:</h4>
+                  <ul className="list-disc list-inside ml-4 text-gray-300 text-sm">
+                    <li>Total CATs received from banks</li>
+                    <li>CATs distributed to vendors</li>
+                    <li>Active vendor relationships</li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="font-semibold text-white mb-1">2. Request CAT:</h4>
+                  <p className="ml-4 text-gray-300 text-sm">Submit new CAT requests to banks with work order documentation and track approval status.</p>
+                </div>
+                <div>
+                  <h4 className="font-semibold text-white mb-1">3. Transfer Tokens:</h4>
+                  <p className="ml-4 text-gray-300 text-sm">Distribute received CATs to vendors based on work allocations and project requirements.</p>
+                </div>
+              </div>
+              <div className="space-y-3">
+                <div>
+                  <h4 className="font-semibold text-white mb-1">4. Vendor Management:</h4>
+                  <p className="ml-4 text-gray-300 text-sm">View registered vendors, their token allocation history, and performance metrics.</p>
+                </div>
+                <div>
+                  <h4 className="font-semibold text-white mb-1">5. CAT Request History:</h4>
+                  <p className="ml-4 text-gray-300 text-sm">Track all submitted requests to banks with status updates and approval timelines.</p>
+                </div>
+                <div>
+                  <h4 className="font-semibold text-white mb-1">6. Guarantee Obligations:</h4>
+                  <p className="ml-4 text-gray-300 text-sm">Monitor potential liabilities from vendor defaults and manage dispute resolution processes.</p>
+                </div>
+              </div>
+            </div>
+
+            <h3 className="text-xl font-semibold text-purple-300 mt-6 mb-3">Example Use Cases:</h3>
+            <ul className="list-disc list-inside text-gray-300 space-y-1">
+              <li><strong className="text-white">Project Planning:</strong> Request appropriate CAT amounts based on upcoming project requirements.</li>
+              <li><strong className="text-white">Vendor Allocation:</strong> Distribute tokens efficiently across multiple vendors for different project phases.</li>
+              <li><strong className="text-white">Risk Management:</strong> Monitor which vendors have redeemed tokens and potential exposure from guarantees.</li>
+            </ul>
+          </section>
+
+          {/* Vendor Dashboard Experience */}
+          <section className="bg-orange-900/20 border border-orange-800 p-6 rounded-lg">
+            <h2 className="text-2xl font-semibold text-orange-300 mb-4">Vendor Dashboard Experience</h2>
+            <p className="text-gray-300 mb-6">
+              The <strong className="text-white">Vendor Dashboard</strong> provides vendors with tools to manage received CATs, access working capital, and distribute tokens to their sub-vendors.
+            </p>
+            
+            <h3 className="text-xl font-semibold text-orange-300 mb-4">Dashboard Modules:</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-3">
+                <div>
+                  <h4 className="font-semibold text-white mb-1">1. Overview Metrics:</h4>
+                  <ul className="list-disc list-inside ml-4 text-gray-300 text-sm">
+                    <li>Total CATs received from companies</li>
+                    <li>Tokens redeemed for loans</li>
+                    <li>Active sub-vendor relationships</li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="font-semibold text-white mb-1">2. Redeem Tokens:</h4>
+                  <p className="ml-4 text-gray-300 text-sm">Convert CATs to working capital loans from partner banks with instant approval process.</p>
+                </div>
+                <div>
+                  <h4 className="font-semibold text-white mb-1">3. Transfer to Sub-Vendors:</h4>
+                  <p className="ml-4 text-gray-300 text-sm">Forward CATs to sub-vendors for their financing needs and project requirements.</p>
+                </div>
+              </div>
+              <div className="space-y-3">
+                <div>
+                  <h4 className="font-semibold text-white mb-1">4. Loan Management:</h4>
+                  <p className="ml-4 text-gray-300 text-sm">Track active loans obtained through CAT redemption with payment schedules and balances.</p>
+                </div>
+                <div>
+                  <h4 className="font-semibold text-white mb-1">5. Transaction History:</h4>
+                  <p className="ml-4 text-gray-300 text-sm">Complete record of CAT receipts, redemptions, and transfers to sub-vendors.</p>
+                </div>
+                <div>
+                  <h4 className="font-semibold text-white mb-1">6. Sub-Vendor Network:</h4>
+                  <p className="ml-4 text-gray-300 text-sm">Manage relationships with sub-vendors and track their token utilization patterns.</p>
+                </div>
+              </div>
+            </div>
+
+            <h3 className="text-xl font-semibold text-orange-300 mt-6 mb-3">Example Use Cases:</h3>
+            <ul className="list-disc list-inside text-gray-300 space-y-1">
+              <li><strong className="text-white">Cash Flow Management:</strong> Redeem CATs strategically to maintain optimal working capital.</li>
+              <li><strong className="text-white">Supply Chain Financing:</strong> Provide sub-vendors with tokens to ensure timely delivery of materials.</li>
+              <li><strong className="text-white">Credit Optimization:</strong> Balance between direct redemption and sub-vendor distribution for maximum efficiency.</li>
+            </ul>
+          </section>
+
           {/* Next Steps */}
           <section className="bg-gray-800 border border-gray-700 p-6 rounded-lg">
             <p className="text-gray-300 font-medium">
-              <strong className="text-white">Next Step:</strong> Upload other participant dashboards (Syndicate Company, Vendor, Sub-Vendor) to continue this documentation.
+              <strong className="text-white">Implementation Status:</strong> All participant dashboards (Bank, Company, Vendor) have been documented and are ready for development. Sub-vendor functionality can be added as an extension of the vendor dashboard.
             </p>
           </section>
         </div>
