@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,6 +8,7 @@ import { ArrowRight, Building, Banknote, Users, TrendingDown, AlertTriangle } fr
 import DashboardLayout from '@/components/DashboardLayout';
 import { toast } from '@/hooks/use-toast';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
+import RequestCATCard from '@/components/dashboard/RequestCATCard';
 
 const CompanyDashboard = () => {
   const { user } = useAuth();
@@ -173,6 +173,9 @@ const CompanyDashboard = () => {
             </CardContent>
           </Card>
         </div>
+
+        {/* Request CAT Section */}
+        <RequestCATCard />
 
         {/* Recent Transfers */}
         <Card>
