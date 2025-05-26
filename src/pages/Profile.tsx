@@ -3,6 +3,10 @@ import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import DashboardLayout from '@/components/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import TokenBalance from '@/components/token/TokenBalance';
+import TokenTransfer from '@/components/token/TokenTransfer';
+import TokenHistory from '@/components/token/TokenHistory';
+import TokenMint from '@/components/token/TokenMint';
 
 const Profile = () => {
   const { user } = useAuth();
@@ -11,6 +15,8 @@ const Profile = () => {
     <DashboardLayout>
       <div className="space-y-6">
         <h1 className="text-3xl font-bold text-gray-900">Profile</h1>
+        
+        {/* User Details */}
         <Card>
           <CardHeader>
             <CardTitle>User Details</CardTitle>
@@ -36,6 +42,21 @@ const Profile = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Token Balance */}
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">$CAT Token Portfolio</h2>
+          <TokenBalance />
+        </div>
+
+        {/* Token Actions */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <TokenTransfer />
+          <TokenMint />
+        </div>
+
+        {/* Token History */}
+        <TokenHistory />
       </div>
     </DashboardLayout>
   );
