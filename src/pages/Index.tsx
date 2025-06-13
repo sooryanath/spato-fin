@@ -88,8 +88,9 @@ const Index = () => {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="text-center mb-16">
           <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
-            Token Gated Platform for{' '}
-            <span className="text-blue-600">Deep Tier Financing</span>
+            Platform helps credible sub-vendors access{' '}
+            <span className="text-blue-600">collateral-free working capital loans</span>{' '}
+            from banks and NBFCs instantly through credit access tokenization (CAT).
           </h1>
           <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
             Connect Banks, NBFCs other formal lenders, syndicate companies and vendors in a seamless token gated ecosystem. 
