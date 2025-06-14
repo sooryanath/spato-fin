@@ -17,6 +17,7 @@ import TokenExplorer from "./pages/TokenExplorer";
 import ActiveCompanies from "./pages/ActiveCompanies";
 import TokensRedeemed from "./pages/TokensRedeemed";
 import ActiveVendors from "./pages/ActiveVendors";
+import ActiveLoans from "./pages/ActiveLoans";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -96,6 +97,14 @@ const App = () => (
                 element={
                   <ProtectedRoute allowedRoles={['bank']}>
                     <ActiveVendors />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/active-loans" 
+                element={
+                  <ProtectedRoute allowedRoles={['bank']}>
+                    <ActiveLoans />
                   </ProtectedRoute>
                 } 
               />

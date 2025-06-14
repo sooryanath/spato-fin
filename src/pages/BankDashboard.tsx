@@ -265,8 +265,12 @@ const BankDashboard = () => {
         {/* Active Loans Section */}
         <Card>
           <CardHeader>
-            <CardTitle>Active Loans</CardTitle>
-            <CardDescription>Current outstanding loans issued to vendors</CardDescription>
+            <div className="flex justify-between items-center">
+              <div>
+                <CardTitle>Active Loans</CardTitle>
+                <CardDescription>Current outstanding loans issued to vendors</CardDescription>
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
             <Table>
@@ -314,6 +318,17 @@ const BankDashboard = () => {
                 ))}
               </TableBody>
             </Table>
+            <div className="flex justify-end mt-4">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => navigate('/active-loans')}
+                className="flex items-center space-x-2"
+              >
+                <ExternalLink className="h-4 w-4" />
+                <span>View Explorer</span>
+              </Button>
+            </div>
           </CardContent>
         </Card>
 
