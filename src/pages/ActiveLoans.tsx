@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -7,11 +6,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import DashboardLayout from '@/components/DashboardLayout';
-import { Calendar, Filter, Search, TrendingUp, AlertCircle, CheckCircle, Clock } from 'lucide-react';
+import { Calendar, Filter, Search, TrendingUp, AlertCircle, CheckCircle, Clock, ArrowLeft } from 'lucide-react';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 
 const ActiveLoans = () => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [disputeReason, setDisputeReason] = useState('');
@@ -134,10 +135,21 @@ const ActiveLoans = () => {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        {/* Header */}
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Active Loans Explorer</h1>
-          <p className="text-gray-600">Comprehensive view of all active loans and their status</p>
+        {/* Header with Back Button */}
+        <div className="flex items-center space-x-4">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => navigate('/bank')}
+            className="flex items-center space-x-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            <span>Back to Dashboard</span>
+          </Button>
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Active Loans Explorer</h1>
+            <p className="text-gray-600">Comprehensive view of all active loans and their status</p>
+          </div>
         </div>
 
         {/* Summary Stats */}
