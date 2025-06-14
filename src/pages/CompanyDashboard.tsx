@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,9 +10,11 @@ import DashboardLayout from '@/components/DashboardLayout';
 import { toast } from '@/hooks/use-toast';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
 import RequestCATCard from '@/components/dashboard/RequestCATCard';
+import { useNavigate } from 'react-router-dom';
 
 const CompanyDashboard = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [transferAmount, setTransferAmount] = useState('');
   const [vendorId, setVendorId] = useState('');
 
@@ -40,39 +43,6 @@ const CompanyDashboard = () => {
     });
   };
 
-  const stats = [
-    {
-      title: "Available Token Balance",
-      value: "₹85,000",
-      change: "-₹15,000",
-      icon: Banknote,
-    },
-    {
-      title: "Active Vendors",
-      value: "12",
-      change: "+2",
-      icon: Users,
-    },
-    {
-      title: "Tokens Transferred",
-      value: "₹1,20,000",
-      change: "+₹25,000",
-      icon: ArrowRight,
-    },
-    {
-      title: "Pending Invoices",
-      value: "8",
-      change: "-3",
-      icon: Building,
-    },
-  ];
-
-  const vendors = [
-    { id: 'V001', name: 'Global Supplies Ltd', pendingAmount: '₹15,000', status: 'Active' },
-    { id: 'V002', name: 'Tech Components Inc', pendingAmount: '₹8,500', status: 'Active' },
-    { id: 'V003', name: 'Raw Materials Co', pendingAmount: '₹22,000', status: 'Pending' },
-  ];
-
   const recentTransfers = [
     { id: '1', vendor: 'Global Supplies Ltd', amount: '₹15,000', date: '2024-01-15', status: 'Completed' },
     { id: '2', vendor: 'Tech Components Inc', amount: '₹8,500', date: '2024-01-14', status: 'Completed' },
@@ -94,24 +64,77 @@ const CompanyDashboard = () => {
           <p className="text-gray-600">Welcome back, {user?.name} from {user?.organizationName}</p>
         </div>
 
-        {/* Stats Grid */}
+        {/* Interactive Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {stats.map((stat, index) => (
-            <Card key={index}>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">{stat.title}</p>
-                    <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
-                    <p className={`text-sm font-medium ${stat.change.includes('+') ? 'text-green-600' : 'text-red-600'}`}>
-                      {stat.change}
-                    </p>
-                  </div>
-                  <stat.icon className="h-8 w-8 text-blue-600" />
+          <Card 
+            className="cursor-pointer hover:shadow-lg transition-shadow"
+            onClick={() => navigate('/company/wallet')}
+          >
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Available Token Balance</p>
+                  <p className="text-2xl font-bold text-gray-900">₹85,000</p>
+                  <p className="text-sm font-medium text-red-600">-₹15,000</p>
                 </div>
-              </CardContent>
-            </Card>
-          ))}
+                <div className="flex flex-col items-center">
+                  <Banknote className="h-8 w-8 text-blue-600" />
+                  <ArrowRight className="h-4 w-4 text-gray-400 mt-1" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card 
+            className="cursor-pointer hover:shadow-lg transition-shadow"
+            onClick={() => navigate('/company/vendors')}
+          >
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Active Vendors</p>
+                  <p className="text-2xl font-bold text-gray-900">12</p>
+                  <p className="text-sm font-medium text-green-600">+2</p>
+                </div>
+                <div className="flex flex-col items-center">
+                  <Users className="h-8 w-8 text-blue-600" />
+                  <ArrowRight className="h-4 w-4 text-gray-400 mt-1" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Tokens Transferred</p>
+                  <p className="text-2xl font-bold text-gray-900">₹1,20,000</p>
+                  <p className="text-sm font-medium text-green-600">+₹25,000</p>
+                </div>
+                <ArrowRight className="h-8 w-8 text-blue-600" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card 
+            className="cursor-pointer hover:shadow-lg transition-shadow"
+            onClick={() => navigate('/company/invoices')}
+          >
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Pending Invoices</p>
+                  <p className="text-2xl font-bold text-gray-900">8</p>
+                  <p className="text-sm font-medium text-red-600">-3</p>
+                </div>
+                <div className="flex flex-col items-center">
+                  <Building className="h-8 w-8 text-blue-600" />
+                  <ArrowRight className="h-4 w-4 text-gray-400 mt-1" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -147,29 +170,37 @@ const CompanyDashboard = () => {
             </CardContent>
           </Card>
 
-          {/* Vendor List */}
+          {/* Quick Vendor Overview */}
           <Card>
             <CardHeader>
-              <CardTitle>Your Vendors</CardTitle>
-              <CardDescription>Manage your vendor relationships</CardDescription>
+              <CardTitle>Quick Vendor Overview</CardTitle>
+              <CardDescription>Top vendors by recent activity</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {vendors.map((vendor) => (
-                  <div key={vendor.id} className="flex items-center justify-between p-3 border rounded-lg">
+                {[
+                  { name: 'Global Supplies Ltd', amount: '₹15,000', status: 'Active' },
+                  { name: 'Tech Components Inc', amount: '₹8,500', status: 'Active' },
+                  { name: 'Raw Materials Co', amount: '₹22,000', status: 'Pending' }
+                ].map((vendor, index) => (
+                  <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
                     <div>
                       <p className="font-medium">{vendor.name}</p>
-                      <p className="text-sm text-gray-600">{vendor.id}</p>
+                      <p className="text-sm text-gray-600">Pending: {vendor.amount}</p>
                     </div>
-                    <div className="text-right">
-                      <p className="font-medium">{vendor.pendingAmount}</p>
-                      <p className={`text-sm ${vendor.status === 'Active' ? 'text-green-600' : 'text-orange-600'}`}>
-                        {vendor.status}
-                      </p>
-                    </div>
+                    <span className={`text-sm ${vendor.status === 'Active' ? 'text-green-600' : 'text-orange-600'}`}>
+                      {vendor.status}
+                    </span>
                   </div>
                 ))}
               </div>
+              <Button 
+                variant="outline" 
+                className="w-full mt-4"
+                onClick={() => navigate('/company/vendors')}
+              >
+                View All Vendors
+              </Button>
             </CardContent>
           </Card>
         </div>
@@ -205,6 +236,13 @@ const CompanyDashboard = () => {
                 </div>
               ))}
             </div>
+            <Button 
+              variant="outline" 
+              className="w-full mt-4"
+              onClick={() => navigate('/company/wallet')}
+            >
+              View Full Transaction History
+            </Button>
           </CardContent>
         </Card>
         
