@@ -1,16 +1,19 @@
+
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
-import { Banknote, Building, TrendingUp, Users, AlertTriangle, FileText, Download } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Banknote, Building, TrendingUp, Users, AlertTriangle, FileText, Download, ExternalLink } from 'lucide-react';
 import DashboardLayout from '@/components/DashboardLayout';
 import { toast } from '@/hooks/use-toast';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 const BankDashboard = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [issueAmount, setIssueAmount] = useState('');
   const [companyId, setCompanyId] = useState('');
   const [disputeReason, setDisputeReason] = useState('');
@@ -156,10 +159,14 @@ const BankDashboard = () => {
           <p className="text-gray-600">Welcome back, {user?.name} from {user?.organizationName}</p>
         </div>
 
-        {/* Stats Grid */}
+        {/* Stats Grid - Now clickable */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {stats.map((stat, index) => (
-            <Card key={index}>
+            <Card 
+              key={index} 
+              className="cursor-pointer hover:shadow-lg transition-shadow duration-200"
+              onClick={() => navigate('/token-explorer')}
+            >
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
@@ -167,7 +174,10 @@ const BankDashboard = () => {
                     <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
                     <p className="text-sm text-green-600 font-medium">{stat.change}</p>
                   </div>
-                  <stat.icon className="h-8 w-8 text-blue-600" />
+                  <div className="flex items-center space-x-2">
+                    <stat.icon className="h-8 w-8 text-blue-600" />
+                    <ExternalLink className="h-4 w-4 text-gray-400" />
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -207,11 +217,15 @@ const BankDashboard = () => {
             </CardContent>
           </Card>
 
-          {/* Recent Transactions */}
+          {/* Recent Transactions - Now with View Explorer button */}
           <Card>
             <CardHeader>
-              <CardTitle>Recent Transactions</CardTitle>
-              <CardDescription>Latest token activities</CardDescription>
+              <div className="flex justify-between items-center">
+                <div>
+                  <CardTitle>Recent Transactions</CardTitle>
+                  <CardDescription>Latest token activities</CardDescription>
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -229,6 +243,17 @@ const BankDashboard = () => {
                     </div>
                   </div>
                 ))}
+              </div>
+              <div className="flex justify-end mt-4">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => navigate('/token-explorer')}
+                  className="flex items-center space-x-2"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  <span>View Explorer</span>
+                </Button>
               </div>
             </CardContent>
           </Card>

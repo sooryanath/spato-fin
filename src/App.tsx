@@ -13,6 +13,7 @@ import BankDashboard from "./pages/BankDashboard";
 import CompanyDashboard from "./pages/CompanyDashboard";
 import VendorDashboard from "./pages/VendorDashboard";
 import Profile from "./pages/Profile";
+import TokenExplorer from "./pages/TokenExplorer";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -60,6 +61,14 @@ const App = () => (
                 element={
                   <ProtectedRoute allowedRoles={['bank', 'company', 'vendor']}>
                     <Profile />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/token-explorer" 
+                element={
+                  <ProtectedRoute allowedRoles={['bank', 'company', 'vendor']}>
+                    <TokenExplorer />
                   </ProtectedRoute>
                 } 
               />
