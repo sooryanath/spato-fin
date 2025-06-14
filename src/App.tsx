@@ -109,6 +109,14 @@ const App = () => (
                   </ProtectedRoute>
                 } 
               />
+              <Route 
+                path="/disputed-loans" 
+                element={
+                  <ProtectedRoute allowedRoles={['bank']}>
+                    <DisputedLoans />
+                  </ProtectedRoute>
+                } 
+              />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
