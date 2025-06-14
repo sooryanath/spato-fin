@@ -14,6 +14,9 @@ import CompanyDashboard from "./pages/CompanyDashboard";
 import VendorDashboard from "./pages/VendorDashboard";
 import Profile from "./pages/Profile";
 import TokenExplorer from "./pages/TokenExplorer";
+import ActiveCompanies from "./pages/ActiveCompanies";
+import TokensRedeemed from "./pages/TokensRedeemed";
+import ActiveVendors from "./pages/ActiveVendors";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -69,6 +72,30 @@ const App = () => (
                 element={
                   <ProtectedRoute allowedRoles={['bank', 'company', 'vendor']}>
                     <TokenExplorer />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/active-companies" 
+                element={
+                  <ProtectedRoute allowedRoles={['bank']}>
+                    <ActiveCompanies />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/tokens-redeemed" 
+                element={
+                  <ProtectedRoute allowedRoles={['bank']}>
+                    <TokensRedeemed />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/active-vendors" 
+                element={
+                  <ProtectedRoute allowedRoles={['bank']}>
+                    <ActiveVendors />
                   </ProtectedRoute>
                 } 
               />

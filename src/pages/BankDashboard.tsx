@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -62,24 +61,28 @@ const BankDashboard = () => {
       value: "₹2,45,000",
       change: "+12%",
       icon: Banknote,
+      route: "/token-explorer"
     },
     {
       title: "Active Companies",
       value: "24",
       change: "+3",
       icon: Building,
+      route: "/active-companies"
     },
     {
       title: "Tokens Redeemed",
       value: "₹1,89,000",
       change: "+8%",
       icon: TrendingUp,
+      route: "/tokens-redeemed"
     },
     {
       title: "Active Vendors",
       value: "156",
       change: "+15",
       icon: Users,
+      route: "/active-vendors"
     },
   ];
 
@@ -159,13 +162,13 @@ const BankDashboard = () => {
           <p className="text-gray-600">Welcome back, {user?.name} from {user?.organizationName}</p>
         </div>
 
-        {/* Stats Grid - Now clickable */}
+        {/* Stats Grid - Now with individual routes */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {stats.map((stat, index) => (
             <Card 
               key={index} 
               className="cursor-pointer hover:shadow-lg transition-shadow duration-200"
-              onClick={() => navigate('/token-explorer')}
+              onClick={() => navigate(stat.route)}
             >
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
