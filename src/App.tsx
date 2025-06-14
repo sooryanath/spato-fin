@@ -118,6 +118,14 @@ const App = () => (
                   </ProtectedRoute>
                 } 
               />
+              <Route 
+                path="/cat-requests" 
+                element={
+                  <ProtectedRoute allowedRoles={['bank']}>
+                    <CATRequests />
+                  </ProtectedRoute>
+                } 
+              />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
