@@ -2,8 +2,9 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { FileText, Download } from 'lucide-react';
+import { FileText, Download, ExternalLink } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 
 interface CATRequest {
   id: string;
@@ -15,6 +16,8 @@ interface CATRequest {
 }
 
 const CATRequestsCard = () => {
+  const navigate = useNavigate();
+  
   const catRequests: CATRequest[] = [
     { 
       id: 'CAT001', 
@@ -64,14 +67,29 @@ const CATRequestsCard = () => {
     });
   };
 
+  const handleViewExplorer = () => {
+    navigate('/cat-requests');
+  };
+
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center space-x-2">
-          <FileText className="h-5 w-5 text-blue-500" />
-          <CardTitle>Credit Access Token (CAT) Requests</CardTitle>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <FileText className="h-5 w-5 text-blue-500" />
+            <div>
+              <CardTitle>Credit Access Token (CAT) Requests</CardTitle>
+              <CardDescription>Syndicate companies requesting Credit Access Tokens with work order files</CardDescription>
+            </div>
+          </div>
+          <Button 
+            onClick={handleViewExplorer}
+            className="flex items-center space-x-2"
+          >
+            <ExternalLink className="h-4 w-4" />
+            <span>View Explorer</span>
+          </Button>
         </div>
-        <CardDescription>Syndicate companies requesting Credit Access Tokens with work order files</CardDescription>
       </CardHeader>
       <CardContent>
         <Table>
