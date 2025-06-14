@@ -370,6 +370,17 @@ const BankDashboard = () => {
                 ))}
               </TableBody>
             </Table>
+            <div className="flex justify-end mt-4">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => navigate('/disputed-loans')}
+                className="flex items-center space-x-2"
+              >
+                <ExternalLink className="h-4 w-4" />
+                <span>View Explorer</span>
+              </Button>
+            </div>
           </CardContent>
         </Card>
 

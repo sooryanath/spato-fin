@@ -18,6 +18,7 @@ import ActiveCompanies from "./pages/ActiveCompanies";
 import TokensRedeemed from "./pages/TokensRedeemed";
 import ActiveVendors from "./pages/ActiveVendors";
 import ActiveLoans from "./pages/ActiveLoans";
+import DisputedLoans from "./pages/DisputedLoans";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 
