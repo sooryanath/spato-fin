@@ -23,6 +23,9 @@ const BankDashboard = () => {
         {/* Stats Grid */}
         <StatsGrid />
 
+        {/* Credit Access Token (CAT) Requests Section - Moved above Recent Transactions */}
+        <CATRequestsCard />
+
         {/* Two Column Layout for Token Issuance and Recent Transactions */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <IssueTokensCard />
@@ -34,9 +37,6 @@ const BankDashboard = () => {
 
         {/* Disputed Loans Section */}
         <DisputedLoansCard />
-
-        {/* Credit Access Token (CAT) Requests Section */}
-        <CATRequestsCard />
       </div>
     </DashboardLayout>
   );

@@ -74,21 +74,12 @@ const CATRequestsCard = () => {
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <FileText className="h-5 w-5 text-blue-500" />
-            <div>
-              <CardTitle>Credit Access Token (CAT) Requests</CardTitle>
-              <CardDescription>Syndicate companies requesting Credit Access Tokens with work order files</CardDescription>
-            </div>
+        <div className="flex items-center space-x-2">
+          <FileText className="h-5 w-5 text-blue-500" />
+          <div>
+            <CardTitle>Credit Access Token (CAT) Requests</CardTitle>
+            <CardDescription>Syndicate companies requesting Credit Access Tokens with work order files</CardDescription>
           </div>
-          <Button 
-            onClick={handleViewExplorer}
-            className="flex items-center space-x-2"
-          >
-            <ExternalLink className="h-4 w-4" />
-            <span>View Explorer</span>
-          </Button>
         </div>
       </CardHeader>
       <CardContent>
@@ -157,6 +148,15 @@ const CATRequestsCard = () => {
             ))}
           </TableBody>
         </Table>
+        <div className="flex justify-end mt-4">
+          <Button 
+            onClick={handleViewExplorer}
+            className="flex items-center space-x-2"
+          >
+            <ExternalLink className="h-4 w-4" />
+            <span>View Explorer</span>
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );
