@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -14,6 +15,9 @@ import CompanyWallet from "./pages/CompanyWallet";
 import CompanyVendors from "./pages/CompanyVendors";
 import CompanyInvoices from "./pages/CompanyInvoices";
 import VendorDashboard from "./pages/VendorDashboard";
+import VendorWallet from "./pages/VendorWallet";
+import VendorSubVendors from "./pages/VendorSubVendors";
+import VendorLoans from "./pages/VendorLoans";
 import Profile from "./pages/Profile";
 import TokenExplorer from "./pages/TokenExplorer";
 import ActiveCompanies from "./pages/ActiveCompanies";
@@ -85,6 +89,30 @@ const App = () => (
                 element={
                   <ProtectedRoute allowedRoles={['vendor']}>
                     <VendorDashboard />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/vendor/wallet" 
+                element={
+                  <ProtectedRoute allowedRoles={['vendor']}>
+                    <VendorWallet />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/vendor/sub-vendors" 
+                element={
+                  <ProtectedRoute allowedRoles={['vendor']}>
+                    <VendorSubVendors />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/vendor/loans" 
+                element={
+                  <ProtectedRoute allowedRoles={['vendor']}>
+                    <VendorLoans />
                   </ProtectedRoute>
                 } 
               />

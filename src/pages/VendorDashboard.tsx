@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
 import { Banknote, ArrowRight, Building, TrendingUp, Check } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import DashboardLayout from '@/components/DashboardLayout';
 import { toast } from '@/hooks/use-toast';
 import {
@@ -17,6 +17,7 @@ import {
 
 const VendorDashboard = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [redeemAmount, setRedeemAmount] = useState('');
   const [transferAmount, setTransferAmount] = useState('');
   const [subVendorId, setSubVendorId] = useState('');
@@ -71,24 +72,32 @@ const VendorDashboard = () => {
       value: "₹45,000",
       change: "+₹12,000",
       icon: Banknote,
+      onClick: () => navigate('/vendor/wallet'),
+      isClickable: true,
     },
     {
       title: "Tokens Redeemed",
       value: "₹28,000",
       change: "+₹5,000",
       icon: Building,
+      onClick: () => navigate('/vendor/wallet'),
+      isClickable: true,
     },
     {
       title: "Sub-Vendors",
       value: "6",
       change: "+1",
       icon: ArrowRight,
+      onClick: () => navigate('/vendor/sub-vendors'),
+      isClickable: true,
     },
     {
       title: "Active Loans",
       value: "₹15,000",
       change: "Current",
       icon: TrendingUp,
+      onClick: () => navigate('/vendor/loans'),
+      isClickable: true,
     },
   ];
 
@@ -124,10 +133,14 @@ const VendorDashboard = () => {
           <p className="text-gray-600">Welcome back, {user?.name} from {user?.organizationName}</p>
         </div>
 
-        {/* Stats Grid */}
+        {/* Stats Grid - Now Clickable */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {stats.map((stat, index) => (
-            <Card key={index}>
+            <Card 
+              key={index} 
+              className={`${stat.isClickable ? 'cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105' : ''}`}
+              onClick={stat.onClick}
+            >
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
@@ -139,9 +152,59 @@ const VendorDashboard = () => {
                   </div>
                   <stat.icon className="h-8 w-8 text-blue-600" />
                 </div>
+                {stat.isClickable && (
+                  <div className="mt-2 text-xs text-blue-600 font-medium">
+                    Click to view details →
+                  </div>
+                )}
               </CardContent>
             </Card>
           ))}
+        </div>
+
+        {/* Quick Actions */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <Card className="cursor-pointer hover:shadow-lg transition-all duration-200" onClick={() => navigate('/vendor/wallet')}>
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                Token Wallet
+                <ArrowRight className="h-5 w-5" />
+              </CardTitle>
+              <CardDescription>Manage tokens and redemptions</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-2xl font-bold text-green-600">₹45,000</p>
+              <p className="text-sm text-gray-600">Available balance</p>
+            </CardContent>
+          </Card>
+
+          <Card className="cursor-pointer hover:shadow-lg transition-all duration-200" onClick={() => navigate('/vendor/sub-vendors')}>
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                Sub-Vendors
+                <ArrowRight className="h-5 w-5" />
+              </CardTitle>
+              <CardDescription>Manage your supplier network</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-2xl font-bold text-blue-600">6</p>
+              <p className="text-sm text-gray-600">Active suppliers</p>
+            </CardContent>
+          </Card>
+
+          <Card className="cursor-pointer hover:shadow-lg transition-all duration-200" onClick={() => navigate('/vendor/loans')}>
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                Active Loans
+                <ArrowRight className="h-5 w-5" />
+              </CardTitle>
+              <CardDescription>Track loan repayments</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-2xl font-bold text-red-600">₹15,000</p>
+              <p className="text-sm text-gray-600">Outstanding amount</p>
+            </CardContent>
+          </Card>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
