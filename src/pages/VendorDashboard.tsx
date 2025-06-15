@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
-import { Banknote, ArrowRight, Building, TrendingUp, Check } from 'lucide-react';
+import { Banknote, ArrowRight, Building, TrendingUp, Check, ExternalLink } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import DashboardLayout from '@/components/DashboardLayout';
 import { toast } from '@/hooks/use-toast';
@@ -321,6 +321,17 @@ const VendorDashboard = () => {
                   </div>
                 ))}
               </div>
+              <div className="flex justify-end mt-4">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => navigate('/vendor/loans')}
+                  className="flex items-center space-x-2"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  <span>View Explorer</span>
+                </Button>
+              </div>
             </CardContent>
           </Card>
 
@@ -349,6 +360,17 @@ const VendorDashboard = () => {
                     </div>
                   </div>
                 ))}
+              </div>
+              <div className="flex justify-end mt-4">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => navigate('/vendor/wallet')}
+                  className="flex items-center space-x-2"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  <span>View Explorer</span>
+                </Button>
               </div>
             </CardContent>
           </Card>
@@ -379,6 +401,17 @@ const VendorDashboard = () => {
                   </div>
                 </div>
               ))}
+            </div>
+            <div className="flex justify-end mt-4">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => navigate('/vendor/sub-vendors')}
+                className="flex items-center space-x-2"
+              >
+                <ExternalLink className="h-4 w-4" />
+                <span>View Explorer</span>
+              </Button>
             </div>
           </CardContent>
         </Card>
