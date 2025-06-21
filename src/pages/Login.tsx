@@ -9,13 +9,14 @@ import { useAuth, UserRole } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { toast } from '@/hooks/use-toast';
-import { Banknote, Settings } from 'lucide-react';
+import { Banknote, Settings, CheckCircle, AlertCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 const Login = () => {
   const { login, signup, user, isLoading } = useAuth();
   const navigate = useNavigate();
   const [isSettingUpUsers, setIsSettingUpUsers] = useState(false);
+  const [setupResults, setSetupResults] = useState<any>(null);
   
   const [loginForm, setLoginForm] = useState({
     email: '',
@@ -52,9 +53,15 @@ const Login = () => {
 
   const setupDemoUsers = async () => {
     setIsSettingUpUsers(true);
+    setSetupResults(null);
     
     try {
-      const { data, error } = await supabase.functions.invoke('setup-demo-users');
+      console.log('Invoking setup-demo-users function...');
+      const { data, error } = await supabase.functions.invoke('setup-demo-users', {
+        body: {}
+      });
+      
+      console.log('Setup function response:', { data, error });
       
       if (error) {
         console.error('Error setting up demo users:', error);
@@ -63,13 +70,16 @@ const Login = () => {
           description: error.message || "Failed to setup demo users",
           variant: "destructive",
         });
+        setSetupResults({ success: false, error: error.message });
         return;
       }
+
+      setSetupResults(data);
 
       if (data?.success) {
         toast({
           title: "Demo Users Created",
-          description: "Demo accounts have been set up successfully. You can now log in with the demo credentials.",
+          description: `Successfully created ${data.results?.filter((r: any) => r.success).length || 0} demo accounts.`,
         });
       } else {
         toast({
@@ -85,6 +95,7 @@ const Login = () => {
         description: "An unexpected error occurred while setting up demo users",
         variant: "destructive",
       });
+      setSetupResults({ success: false, error: 'Unexpected error' });
     } finally {
       setIsSettingUpUsers(false);
     }
@@ -102,12 +113,14 @@ const Login = () => {
       return;
     }
 
+    console.log('Attempting login with:', { email: loginForm.email, password: '***' });
     const result = await login(loginForm.email, loginForm.password);
     
     if (!result.success) {
+      console.error('Login failed:', result.error);
       toast({
         title: "Login Failed",
-        description: result.error || "Invalid credentials",
+        description: result.error || "Invalid credentials. Try setting up demo users first.",
         variant: "destructive",
       });
     } else {
@@ -116,6 +129,13 @@ const Login = () => {
         description: "Welcome back!",
       });
     }
+  };
+
+  const fillDemoCredentials = (email: string) => {
+    setLoginForm({
+      email: email,
+      password: 'demo123'
+    });
   };
 
   const handleSignup = async (e: React.FormEvent) => {
@@ -237,9 +257,9 @@ const Login = () => {
                   </Button>
                 </form>
 
-                <div className="mt-4 p-4 bg-blue-50 rounded-lg">
-                  <div className="flex items-center justify-between mb-2">
-                    <p className="text-sm text-blue-700 font-medium">Demo Accounts:</p>
+                <div className="mt-4 p-4 bg-blue-50 rounded-lg border">
+                  <div className="flex items-center justify-between mb-3">
+                    <p className="text-sm text-blue-700 font-medium">Demo Accounts Setup:</p>
                     <Button
                       variant="outline"
                       size="sm"
@@ -248,17 +268,55 @@ const Login = () => {
                       className="text-xs h-7 px-2"
                     >
                       <Settings className="h-3 w-3 mr-1" />
-                      {isSettingUpUsers ? 'Setting up...' : 'Setup'}
+                      {isSettingUpUsers ? 'Setting up...' : 'Setup Demo Users'}
                     </Button>
                   </div>
-                  <div className="space-y-1 text-xs text-blue-600">
-                    <p>Bank: bank@hdfc.com</p>
-                    <p>Company: finance@techcorp.com</p>
-                    <p>Vendor: vendor@supplies.com</p>
-                    <p>Password: demo123</p>
+                  
+                  {setupResults && (
+                    <div className="mb-3 p-2 rounded border bg-white">
+                      <div className="flex items-center gap-2 mb-1">
+                        {setupResults.success ? (
+                          <CheckCircle className="h-4 w-4 text-green-500" />
+                        ) : (
+                          <AlertCircle className="h-4 w-4 text-red-500" />
+                        )}
+                        <span className="text-xs font-medium">
+                          {setupResults.success ? 'Setup Successful' : 'Setup Failed'}
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-600">{setupResults.message}</p>
+                    </div>
+                  )}
+
+                  <div className="space-y-2">
+                    <p className="text-xs text-blue-700 font-medium">Quick Fill Credentials:</p>
+                    <div className="space-y-1">
+                      <button
+                        type="button"
+                        onClick={() => fillDemoCredentials('bank@hdfc.com')}
+                        className="block w-full text-left text-xs text-blue-600 hover:text-blue-800 hover:bg-blue-100 p-1 rounded"
+                      >
+                        🏦 Bank: bank@hdfc.com / demo123
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => fillDemoCredentials('finance@techcorp.com')}
+                        className="block w-full text-left text-xs text-blue-600 hover:text-blue-800 hover:bg-blue-100 p-1 rounded"
+                      >
+                        🏢 Company: finance@techcorp.com / demo123
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => fillDemoCredentials('vendor@supplies.com')}
+                        className="block w-full text-left text-xs text-blue-600 hover:text-blue-800 hover:bg-blue-100 p-1 rounded"
+                      >
+                        📦 Vendor: vendor@supplies.com / demo123
+                      </button>
+                    </div>
                   </div>
+                  
                   <p className="text-xs text-blue-500 mt-2">
-                    Click "Setup" if you're having login issues with demo accounts.
+                    Click "Setup Demo Users" first, then click any credential above to auto-fill the form.
                   </p>
                 </div>
               </TabsContent>

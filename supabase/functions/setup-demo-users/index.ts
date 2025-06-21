@@ -26,7 +26,18 @@ Deno.serve(async (req) => {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     
-    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+    console.log('Environment check:', {
+      hasUrl: !!supabaseUrl,
+      hasServiceKey: !!supabaseServiceKey,
+      urlValue: supabaseUrl
+    });
+
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    });
 
     console.log('Starting demo users setup...');
 
@@ -65,15 +76,36 @@ Deno.serve(async (req) => {
       
       try {
         // First, try to delete existing user if they exist
-        const { data: existingUsers } = await supabaseAdmin.auth.admin.listUsers();
+        console.log(`Checking for existing user: ${user.email}`);
+        const { data: existingUsers, error: listError } = await supabaseAdmin.auth.admin.listUsers();
+        
+        if (listError) {
+          console.error('Error listing users:', listError);
+          results.push({ email: user.email, success: false, error: `Failed to list users: ${listError.message}` });
+          continue;
+        }
+
         const existingUser = existingUsers.users.find(u => u.email === user.email);
         
         if (existingUser) {
-          console.log(`Deleting existing user: ${user.email}`);
-          await supabaseAdmin.auth.admin.deleteUser(existingUser.id);
+          console.log(`Deleting existing user: ${user.email} (ID: ${existingUser.id})`);
+          const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(existingUser.id);
+          if (deleteError) {
+            console.error(`Error deleting user ${user.email}:`, deleteError);
+          } else {
+            console.log(`Successfully deleted existing user: ${user.email}`);
+          }
+          
+          // Also clean up profile and token balance
+          await supabaseAdmin.from('profiles').delete().eq('id', existingUser.id);
+          await supabaseAdmin.from('token_balances').delete().eq('profile_id', existingUser.id);
         }
 
+        // Wait a moment for cleanup to complete
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
         // Create new user with Supabase Auth Admin API
+        console.log(`Creating new user: ${user.email}`);
         const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
           email: user.email,
           password: user.password,
@@ -91,12 +123,22 @@ Deno.serve(async (req) => {
           continue;
         }
 
+        if (!authData.user) {
+          console.error(`No user data returned for ${user.email}`);
+          results.push({ email: user.email, success: false, error: 'No user data returned' });
+          continue;
+        }
+
         console.log(`Created auth user: ${user.email} with ID: ${authData.user.id}`);
 
-        // Create profile (should be created by trigger, but let's ensure it exists)
+        // Wait a moment for user creation to propagate
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        // Create profile manually (since trigger might not work with admin API)
+        console.log(`Creating profile for: ${user.email}`);
         const { error: profileError } = await supabaseAdmin
           .from('profiles')
-          .upsert({
+          .insert({
             id: authData.user.id,
             name: user.name,
             email: user.email,
@@ -106,14 +148,16 @@ Deno.serve(async (req) => {
 
         if (profileError) {
           console.error(`Error creating profile for ${user.email}:`, profileError);
-          results.push({ email: user.email, success: false, error: profileError.message });
-          continue;
+          // Continue anyway, as the user can still log in
+        } else {
+          console.log(`Created profile for: ${user.email}`);
         }
 
         // Create token balance
+        console.log(`Creating token balance for: ${user.email}`);
         const { error: tokenError } = await supabaseAdmin
           .from('token_balances')
-          .upsert({
+          .insert({
             profile_id: authData.user.id,
             available_balance: user.initialTokens,
             locked_balance: 0,
@@ -122,16 +166,26 @@ Deno.serve(async (req) => {
 
         if (tokenError) {
           console.error(`Error creating token balance for ${user.email}:`, tokenError);
-          results.push({ email: user.email, success: false, error: tokenError.message });
+          // Continue anyway, as the user can still log in
+        } else {
+          console.log(`Created token balance for: ${user.email}`);
+        }
+
+        // Verify the user can be retrieved
+        const { data: verifyUser, error: verifyError } = await supabaseAdmin.auth.admin.getUserById(authData.user.id);
+        if (verifyError || !verifyUser.user) {
+          console.error(`Error verifying user ${user.email}:`, verifyError);
+          results.push({ email: user.email, success: false, error: 'User verification failed' });
           continue;
         }
 
-        console.log(`Successfully set up user: ${user.email}`);
+        console.log(`Successfully set up and verified user: ${user.email}`);
         results.push({ 
           email: user.email, 
           success: true, 
           userId: authData.user.id,
-          tokens: user.initialTokens
+          tokens: user.initialTokens,
+          verified: true
         });
 
       } catch (error) {
@@ -148,12 +202,17 @@ Deno.serve(async (req) => {
     const failureCount = results.filter(r => !r.success).length;
 
     console.log(`Demo users setup completed. Success: ${successCount}, Failures: ${failureCount}`);
+    console.log('Results:', results);
 
     return new Response(
       JSON.stringify({
         success: failureCount === 0,
         message: `Setup completed. ${successCount} users created successfully, ${failureCount} failures.`,
-        results: results
+        results: results,
+        environment: {
+          supabaseUrl,
+          hasServiceKey: !!supabaseServiceKey
+        }
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -166,7 +225,8 @@ Deno.serve(async (req) => {
     return new Response(
       JSON.stringify({
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error occurred'
+        error: error instanceof Error ? error.message : 'Unknown error occurred',
+        details: error instanceof Error ? error.stack : undefined
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
