@@ -1,10 +1,11 @@
 
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.0'
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
 
 interface DemoUser {
   email: string;
@@ -12,104 +13,73 @@ interface DemoUser {
   name: string;
   role: 'bank' | 'company' | 'vendor';
   organizationName: string;
-  initialTokens: number;
+  initialBalance: number;
 }
 
-Deno.serve(async (req) => {
-  // Handle CORS preflight requests
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+const demoUsers: DemoUser[] = [
+  {
+    email: "bank@hdfc.com",
+    password: "demo123",
+    name: "HDFC Bank Admin",
+    role: "bank",
+    organizationName: "HDFC Bank",
+    initialBalance: 1000000
+  },
+  {
+    email: "finance@techcorp.com",
+    password: "demo123",
+    name: "TechCorp Finance",
+    role: "company",
+    organizationName: "TechCorp Industries",
+    initialBalance: 50000
+  },
+  {
+    email: "vendor@supplies.com",
+    password: "demo123",
+    name: "Supply Chain Vendor",
+    role: "vendor",
+    organizationName: "Global Supplies Co",
+    initialBalance: 10000
+  }
+];
+
+serve(async (req: Request) => {
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders });
   }
 
   try {
-    // Create Supabase admin client
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     
-    console.log('Environment check:', {
-      hasUrl: !!supabaseUrl,
-      hasServiceKey: !!supabaseServiceKey,
-      urlValue: supabaseUrl
-    });
-
-    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
+    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
       auth: {
         autoRefreshToken: false,
         persistSession: false
       }
     });
 
-    console.log('Starting demo users setup...');
-
-    // Define demo users
-    const demoUsers: DemoUser[] = [
-      {
-        email: 'bank@hdfc.com',
-        password: 'demo123',
-        name: 'HDFC Bank Admin',
-        role: 'bank',
-        organizationName: 'HDFC Bank Ltd',
-        initialTokens: 1000000
-      },
-      {
-        email: 'finance@techcorp.com',
-        password: 'demo123',
-        name: 'TechCorp Finance',
-        role: 'company',
-        organizationName: 'TechCorp Industries',
-        initialTokens: 50000
-      },
-      {
-        email: 'vendor@supplies.com',
-        password: 'demo123',
-        name: 'Global Supplies',
-        role: 'vendor',
-        organizationName: 'Global Supplies Co',
-        initialTokens: 10000
-      }
-    ];
-
+    console.log("Starting demo user setup...");
     const results = [];
 
     for (const user of demoUsers) {
-      console.log(`Setting up user: ${user.email}`);
-      
       try {
-        // First, try to delete existing user if they exist
-        console.log(`Checking for existing user: ${user.email}`);
-        const { data: existingUsers, error: listError } = await supabaseAdmin.auth.admin.listUsers();
+        console.log(`Setting up user: ${user.email}`);
         
-        if (listError) {
-          console.error('Error listing users:', listError);
-          results.push({ email: user.email, success: false, error: `Failed to list users: ${listError.message}` });
-          continue;
-        }
-
+        // First, try to delete existing user if they exist
+        const { data: existingUsers } = await supabase.auth.admin.listUsers();
         const existingUser = existingUsers.users.find(u => u.email === user.email);
         
         if (existingUser) {
-          console.log(`Deleting existing user: ${user.email} (ID: ${existingUser.id})`);
-          const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(existingUser.id);
-          if (deleteError) {
-            console.error(`Error deleting user ${user.email}:`, deleteError);
-          } else {
-            console.log(`Successfully deleted existing user: ${user.email}`);
-          }
-          
-          // Also clean up profile and token balance
-          await supabaseAdmin.from('profiles').delete().eq('id', existingUser.id);
-          await supabaseAdmin.from('token_balances').delete().eq('profile_id', existingUser.id);
+          console.log(`Deleting existing user: ${user.email}`);
+          await supabase.auth.admin.deleteUser(existingUser.id);
         }
 
-        // Wait a moment for cleanup to complete
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
-        // Create new user with Supabase Auth Admin API
-        console.log(`Creating new user: ${user.email}`);
-        const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
+        // Create new user with admin API
+        const { data: newUser, error: createError } = await supabase.auth.admin.createUser({
           email: user.email,
           password: user.password,
-          email_confirm: true, // Skip email confirmation for demo users
+          email_confirm: true, // Skip email confirmation
           user_metadata: {
             name: user.name,
             role: user.role,
@@ -117,121 +87,62 @@ Deno.serve(async (req) => {
           }
         });
 
-        if (authError) {
-          console.error(`Error creating auth user ${user.email}:`, authError);
-          results.push({ email: user.email, success: false, error: authError.message });
+        if (createError) {
+          console.error(`Error creating user ${user.email}:`, createError);
+          results.push({ email: user.email, error: createError.message });
           continue;
         }
 
-        if (!authData.user) {
-          console.error(`No user data returned for ${user.email}`);
-          results.push({ email: user.email, success: false, error: 'No user data returned' });
-          continue;
-        }
+        console.log(`Created user: ${user.email} with ID: ${newUser.user.id}`);
 
-        console.log(`Created auth user: ${user.email} with ID: ${authData.user.id}`);
-
-        // Wait a moment for user creation to propagate
-        await new Promise(resolve => setTimeout(resolve, 500));
-
-        // Create profile manually (since trigger might not work with admin API)
-        console.log(`Creating profile for: ${user.email}`);
-        const { error: profileError } = await supabaseAdmin
-          .from('profiles')
-          .insert({
-            id: authData.user.id,
-            name: user.name,
-            email: user.email,
-            role: user.role,
-            organization_name: user.organizationName
-          });
-
-        if (profileError) {
-          console.error(`Error creating profile for ${user.email}:`, profileError);
-          // Continue anyway, as the user can still log in
-        } else {
-          console.log(`Created profile for: ${user.email}`);
-        }
-
-        // Create token balance
-        console.log(`Creating token balance for: ${user.email}`);
-        const { error: tokenError } = await supabaseAdmin
+        // Update token balance
+        const { error: balanceError } = await supabase
           .from('token_balances')
-          .insert({
-            profile_id: authData.user.id,
-            available_balance: user.initialTokens,
-            locked_balance: 0,
-            total_balance: user.initialTokens
-          });
+          .update({
+            available_balance: user.initialBalance,
+            total_balance: user.initialBalance,
+            updated_at: new Date().toISOString()
+          })
+          .eq('profile_id', newUser.user.id);
 
-        if (tokenError) {
-          console.error(`Error creating token balance for ${user.email}:`, tokenError);
-          // Continue anyway, as the user can still log in
+        if (balanceError) {
+          console.error(`Error updating balance for ${user.email}:`, balanceError);
         } else {
-          console.log(`Created token balance for: ${user.email}`);
+          console.log(`Updated balance for ${user.email}: ${user.initialBalance}`);
         }
 
-        // Verify the user can be retrieved
-        const { data: verifyUser, error: verifyError } = await supabaseAdmin.auth.admin.getUserById(authData.user.id);
-        if (verifyError || !verifyUser.user) {
-          console.error(`Error verifying user ${user.email}:`, verifyError);
-          results.push({ email: user.email, success: false, error: 'User verification failed' });
-          continue;
-        }
-
-        console.log(`Successfully set up and verified user: ${user.email}`);
         results.push({ 
           email: user.email, 
           success: true, 
-          userId: authData.user.id,
-          tokens: user.initialTokens,
-          verified: true
+          userId: newUser.user.id,
+          balance: user.initialBalance 
         });
 
       } catch (error) {
-        console.error(`Unexpected error setting up user ${user.email}:`, error);
-        results.push({ 
-          email: user.email, 
-          success: false, 
-          error: error instanceof Error ? error.message : 'Unknown error'
-        });
+        console.error(`Error processing user ${user.email}:`, error);
+        results.push({ email: user.email, error: error.message });
       }
     }
 
-    const successCount = results.filter(r => r.success).length;
-    const failureCount = results.filter(r => !r.success).length;
+    console.log("Demo user setup completed:", results);
 
-    console.log(`Demo users setup completed. Success: ${successCount}, Failures: ${failureCount}`);
-    console.log('Results:', results);
-
-    return new Response(
-      JSON.stringify({
-        success: failureCount === 0,
-        message: `Setup completed. ${successCount} users created successfully, ${failureCount} failures.`,
-        results: results,
-        environment: {
-          supabaseUrl,
-          hasServiceKey: !!supabaseServiceKey
-        }
-      }),
-      {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200,
-      }
-    );
+    return new Response(JSON.stringify({ 
+      success: true, 
+      message: "Demo users setup completed",
+      results 
+    }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status: 200,
+    });
 
   } catch (error) {
-    console.error('Error in setup-demo-users function:', error);
-    return new Response(
-      JSON.stringify({
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error occurred',
-        details: error instanceof Error ? error.stack : undefined
-      }),
-      {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 500,
-      }
-    );
+    console.error("Error in setup-demo-users function:", error);
+    return new Response(JSON.stringify({ 
+      error: "Internal server error", 
+      details: error.message 
+    }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status: 500,
+    });
   }
 });

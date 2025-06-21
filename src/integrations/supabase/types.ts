@@ -400,6 +400,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_current_user_profile_id: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       get_current_user_role: {
         Args: Record<PropertyKey, never>
         Returns: Database["public"]["Enums"]["user_role"]
@@ -422,10 +426,18 @@ export type Database = {
         | "repaid"
         | "defaulted"
         | "disputed"
+        | "completed"
       transaction_status: "pending" | "completed" | "failed"
-      transaction_type: "transfer" | "receive" | "mint" | "burn" | "redeem"
+      transaction_type:
+        | "transfer"
+        | "receive"
+        | "mint"
+        | "burn"
+        | "redeem"
+        | "loan_disbursement"
+        | "loan_repayment"
       user_role: "bank" | "company" | "vendor"
-      vendor_status: "active" | "inactive" | "pending"
+      vendor_status: "active" | "inactive" | "pending" | "suspended"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -549,11 +561,20 @@ export const Constants = {
         "repaid",
         "defaulted",
         "disputed",
+        "completed",
       ],
       transaction_status: ["pending", "completed", "failed"],
-      transaction_type: ["transfer", "receive", "mint", "burn", "redeem"],
+      transaction_type: [
+        "transfer",
+        "receive",
+        "mint",
+        "burn",
+        "redeem",
+        "loan_disbursement",
+        "loan_repayment",
+      ],
       user_role: ["bank", "company", "vendor"],
-      vendor_status: ["active", "inactive", "pending"],
+      vendor_status: ["active", "inactive", "pending", "suspended"],
     },
   },
 } as const
