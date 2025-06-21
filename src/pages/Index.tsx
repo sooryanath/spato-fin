@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
@@ -21,11 +20,11 @@ const Index = () => {
     // Redirect authenticated users to appropriate dashboard
     switch (user.role) {
       case 'bank':
-        return <Navigate to="/bank-dashboard" replace />;
+        return <Navigate to="/bank" replace />;
       case 'company':
-        return <Navigate to="/company-dashboard" replace />;
+        return <Navigate to="/company" replace />;
       case 'vendor':
-        return <Navigate to="/vendor-dashboard" replace />;
+        return <Navigate to="/vendor" replace />;
       default:
         return <Navigate to="/profile" replace />;
     }
