@@ -1,10 +1,11 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useAuth } from './AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 
 export interface TokenTransaction {
   id: string;
-  type: 'transfer' | 'receive' | 'mint' | 'burn';
+  type: 'transfer' | 'receive' | 'mint' | 'burn' | 'redeem';
   amount: number;
   from?: string;
   to?: string;
@@ -39,139 +40,178 @@ export const useToken = () => {
 };
 
 export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user } = useAuth();
+  const { user, session } = useAuth();
   const [balance, setBalance] = useState<TokenBalance>({ available: 0, locked: 0, total: 0 });
   const [transactions, setTransactions] = useState<TokenTransaction[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Mock token balances based on user role
-  const initializeBalance = () => {
+  const fetchBalance = async () => {
     if (!user) return;
 
-    let initialBalance: TokenBalance;
-    switch (user.role) {
-      case 'bank':
-        initialBalance = { available: 1000000, locked: 50000, total: 1050000 };
-        break;
-      case 'company':
-        initialBalance = { available: 85000, locked: 15000, total: 100000 };
-        break;
-      case 'vendor':
-        initialBalance = { available: 25000, locked: 5000, total: 30000 };
-        break;
-      default:
-        initialBalance = { available: 0, locked: 0, total: 0 };
-    }
-    setBalance(initialBalance);
-  };
+    try {
+      const { data, error } = await supabase
+        .from('token_balances')
+        .select('*')
+        .eq('profile_id', user.id)
+        .single();
 
-  // Mock transaction history
-  const initializeTransactions = () => {
-    if (!user) return;
-
-    const mockTransactions: TokenTransaction[] = [
-      {
-        id: 'tx001',
-        type: 'receive',
-        amount: 50000,
-        from: 'HDFC Bank',
-        timestamp: new Date('2024-01-15'),
-        status: 'completed',
-        description: 'CAT allocation from bank'
-      },
-      {
-        id: 'tx002',
-        type: 'transfer',
-        amount: 15000,
-        to: 'Global Supplies Ltd',
-        timestamp: new Date('2024-01-14'),
-        status: 'completed',
-        description: 'Payment for services'
-      },
-      {
-        id: 'tx003',
-        type: 'receive',
-        amount: 25000,
-        from: 'TechCorp Industries',
-        timestamp: new Date('2024-01-13'),
-        status: 'completed',
-        description: 'Token transfer received'
+      if (error) {
+        console.error('Error fetching balance:', error);
+        return;
       }
-    ];
-    setTransactions(mockTransactions);
+
+      if (data) {
+        setBalance({
+          available: parseFloat(data.available_balance || '0'),
+          locked: parseFloat(data.locked_balance || '0'),
+          total: parseFloat(data.total_balance || '0')
+        });
+      }
+    } catch (error) {
+      console.error('Error in fetchBalance:', error);
+    }
   };
 
-  const transferTokens = async (to: string, amount: number, description = 'Token transfer'): Promise<boolean> => {
-    if (amount > balance.available) {
-      return false;
+  const fetchTransactions = async () => {
+    if (!user) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('token_transactions')
+        .select(`
+          *,
+          from_profile:from_profile_id(name, organization_name),
+          to_profile:to_profile_id(name, organization_name)
+        `)
+        .or(`from_profile_id.eq.${user.id},to_profile_id.eq.${user.id}`)
+        .order('created_at', { ascending: false })
+        .limit(50);
+
+      if (error) {
+        console.error('Error fetching transactions:', error);
+        return;
+      }
+
+      const formattedTransactions: TokenTransaction[] = data.map(tx => ({
+        id: tx.id,
+        type: tx.transaction_type as TokenTransaction['type'],
+        amount: parseFloat(tx.amount),
+        from: tx.from_profile?.organization_name || tx.from_profile?.name,
+        to: tx.to_profile?.organization_name || tx.to_profile?.name,
+        timestamp: new Date(tx.created_at),
+        status: tx.status as TokenTransaction['status'],
+        description: tx.description || ''
+      }));
+
+      setTransactions(formattedTransactions);
+    } catch (error) {
+      console.error('Error in fetchTransactions:', error);
     }
+  };
+
+  const transferTokens = async (toProfileId: string, amount: number, description = 'Token transfer'): Promise<boolean> => {
+    if (!user || !session) return false;
+    if (amount > balance.available) return false;
 
     setIsLoading(true);
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    try {
+      // Create transaction record
+      const { data: transaction, error: transactionError } = await supabase
+        .from('token_transactions')
+        .insert({
+          from_profile_id: user.id,
+          to_profile_id: toProfileId,
+          transaction_type: 'transfer',
+          amount: amount,
+          status: 'completed',
+          description
+        })
+        .select()
+        .single();
 
-    const newTransaction: TokenTransaction = {
-      id: `tx${Date.now()}`,
-      type: 'transfer',
-      amount,
-      to,
-      timestamp: new Date(),
-      status: 'completed',
-      description
-    };
+      if (transactionError) {
+        console.error('Error creating transaction:', transactionError);
+        return false;
+      }
 
-    setTransactions(prev => [newTransaction, ...prev]);
-    setBalance(prev => ({
-      available: prev.available - amount,
-      locked: prev.locked,
-      total: prev.total - amount
-    }));
+      // Update balances using the database function
+      const { error: updateError } = await supabase.rpc('update_token_balance', {
+        p_profile_id: user.id,
+        p_amount_change: -amount,
+        p_balance_type: 'available'
+      });
 
-    setIsLoading(false);
-    return true;
+      if (updateError) {
+        console.error('Error updating balance:', updateError);
+        return false;
+      }
+
+      // Refresh data
+      await Promise.all([fetchBalance(), fetchTransactions()]);
+      return true;
+    } catch (error) {
+      console.error('Error in transferTokens:', error);
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const mintTokens = async (amount: number, description = 'Token mint'): Promise<boolean> => {
-    if (user?.role !== 'bank') {
-      return false; // Only banks can mint tokens
-    }
+    if (!user || !session || user.role !== 'bank') return false;
 
     setIsLoading(true);
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    try {
+      // Create mint transaction
+      const { error: transactionError } = await supabase
+        .from('token_transactions')
+        .insert({
+          to_profile_id: user.id,
+          transaction_type: 'mint',
+          amount: amount,
+          status: 'completed',
+          description
+        });
 
-    const newTransaction: TokenTransaction = {
-      id: `tx${Date.now()}`,
-      type: 'mint',
-      amount,
-      timestamp: new Date(),
-      status: 'completed',
-      description
-    };
+      if (transactionError) {
+        console.error('Error creating mint transaction:', transactionError);
+        return false;
+      }
 
-    setTransactions(prev => [newTransaction, ...prev]);
-    setBalance(prev => ({
-      available: prev.available + amount,
-      locked: prev.locked,
-      total: prev.total + amount
-    }));
+      // Update balance
+      const { error: updateError } = await supabase.rpc('update_token_balance', {
+        p_profile_id: user.id,
+        p_amount_change: amount,
+        p_balance_type: 'available'
+      });
 
-    setIsLoading(false);
-    return true;
+      if (updateError) {
+        console.error('Error updating balance:', updateError);
+        return false;
+      }
+
+      // Refresh data
+      await Promise.all([fetchBalance(), fetchTransactions()]);
+      return true;
+    } catch (error) {
+      console.error('Error in mintTokens:', error);
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const refreshBalance = () => {
-    initializeBalance();
+    fetchBalance();
+    fetchTransactions();
   };
 
   useEffect(() => {
-    if (user) {
-      initializeBalance();
-      initializeTransactions();
+    if (user && session) {
+      fetchBalance();
+      fetchTransactions();
     }
-  }, [user]);
+  }, [user, session]);
 
   return (
     <TokenContext.Provider value={{

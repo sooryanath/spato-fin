@@ -9,16 +9,423 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      companies: {
+        Row: {
+          annual_revenue: number | null
+          company_name: string
+          created_at: string | null
+          credit_limit: number | null
+          id: string
+          industry: string | null
+          profile_id: string
+          registration_number: string | null
+          updated_at: string | null
+          verification_status:
+            | Database["public"]["Enums"]["company_verification_status"]
+            | null
+        }
+        Insert: {
+          annual_revenue?: number | null
+          company_name: string
+          created_at?: string | null
+          credit_limit?: number | null
+          id?: string
+          industry?: string | null
+          profile_id: string
+          registration_number?: string | null
+          updated_at?: string | null
+          verification_status?:
+            | Database["public"]["Enums"]["company_verification_status"]
+            | null
+        }
+        Update: {
+          annual_revenue?: number | null
+          company_name?: string
+          created_at?: string | null
+          credit_limit?: number | null
+          id?: string
+          industry?: string | null
+          profile_id?: string
+          registration_number?: string | null
+          updated_at?: string | null
+          verification_status?:
+            | Database["public"]["Enums"]["company_verification_status"]
+            | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "companies_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      company_vendors: {
+        Row: {
+          company_id: string
+          created_at: string | null
+          credit_limit: number | null
+          id: string
+          relationship_type: string | null
+          vendor_id: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string | null
+          credit_limit?: number | null
+          id?: string
+          relationship_type?: string | null
+          vendor_id: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string | null
+          credit_limit?: number | null
+          id?: string
+          relationship_type?: string | null
+          vendor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_vendors_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_vendors_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      disputes: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          dispute_reason: string
+          id: string
+          loan_id: string
+          raised_by_profile_id: string
+          resolution: string | null
+          resolved_at: string | null
+          resolved_by_profile_id: string | null
+          status: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          dispute_reason: string
+          id?: string
+          loan_id: string
+          raised_by_profile_id: string
+          resolution?: string | null
+          resolved_at?: string | null
+          resolved_by_profile_id?: string | null
+          status?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          dispute_reason?: string
+          id?: string
+          loan_id?: string
+          raised_by_profile_id?: string
+          resolution?: string | null
+          resolved_at?: string | null
+          resolved_by_profile_id?: string | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "disputes_loan_id_fkey"
+            columns: ["loan_id"]
+            isOneToOne: false
+            referencedRelation: "loans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "disputes_raised_by_profile_id_fkey"
+            columns: ["raised_by_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "disputes_resolved_by_profile_id_fkey"
+            columns: ["resolved_by_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      loans: {
+        Row: {
+          borrower_profile_id: string
+          collateral_tokens: number | null
+          created_at: string | null
+          due_date: string | null
+          id: string
+          interest_rate: number
+          lender_profile_id: string | null
+          loan_amount: number
+          repaid_amount: number | null
+          start_date: string | null
+          status: Database["public"]["Enums"]["loan_status"] | null
+          term_months: number
+          updated_at: string | null
+        }
+        Insert: {
+          borrower_profile_id: string
+          collateral_tokens?: number | null
+          created_at?: string | null
+          due_date?: string | null
+          id?: string
+          interest_rate: number
+          lender_profile_id?: string | null
+          loan_amount: number
+          repaid_amount?: number | null
+          start_date?: string | null
+          status?: Database["public"]["Enums"]["loan_status"] | null
+          term_months: number
+          updated_at?: string | null
+        }
+        Update: {
+          borrower_profile_id?: string
+          collateral_tokens?: number | null
+          created_at?: string | null
+          due_date?: string | null
+          id?: string
+          interest_rate?: number
+          lender_profile_id?: string | null
+          loan_amount?: number
+          repaid_amount?: number | null
+          start_date?: string | null
+          status?: Database["public"]["Enums"]["loan_status"] | null
+          term_months?: number
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "loans_borrower_profile_id_fkey"
+            columns: ["borrower_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "loans_lender_profile_id_fkey"
+            columns: ["lender_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string | null
+          email: string
+          id: string
+          name: string
+          organization_name: string
+          role: Database["public"]["Enums"]["user_role"]
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          id: string
+          name: string
+          organization_name: string
+          role: Database["public"]["Enums"]["user_role"]
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          id?: string
+          name?: string
+          organization_name?: string
+          role?: Database["public"]["Enums"]["user_role"]
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      token_balances: {
+        Row: {
+          available_balance: number | null
+          id: string
+          locked_balance: number | null
+          profile_id: string
+          total_balance: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          available_balance?: number | null
+          id?: string
+          locked_balance?: number | null
+          profile_id: string
+          total_balance?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          available_balance?: number | null
+          id?: string
+          locked_balance?: number | null
+          profile_id?: string
+          total_balance?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "token_balances_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      token_transactions: {
+        Row: {
+          amount: number
+          created_at: string | null
+          description: string | null
+          from_profile_id: string | null
+          id: string
+          metadata: Json | null
+          status: Database["public"]["Enums"]["transaction_status"] | null
+          to_profile_id: string | null
+          transaction_type: Database["public"]["Enums"]["transaction_type"]
+          updated_at: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          description?: string | null
+          from_profile_id?: string | null
+          id?: string
+          metadata?: Json | null
+          status?: Database["public"]["Enums"]["transaction_status"] | null
+          to_profile_id?: string | null
+          transaction_type: Database["public"]["Enums"]["transaction_type"]
+          updated_at?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          description?: string | null
+          from_profile_id?: string | null
+          id?: string
+          metadata?: Json | null
+          status?: Database["public"]["Enums"]["transaction_status"] | null
+          to_profile_id?: string | null
+          transaction_type?: Database["public"]["Enums"]["transaction_type"]
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "token_transactions_from_profile_id_fkey"
+            columns: ["from_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "token_transactions_to_profile_id_fkey"
+            columns: ["to_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vendors: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          id: string
+          parent_vendor_id: string | null
+          profile_id: string
+          status: Database["public"]["Enums"]["vendor_status"] | null
+          updated_at: string | null
+          vendor_name: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          id?: string
+          parent_vendor_id?: string | null
+          profile_id: string
+          status?: Database["public"]["Enums"]["vendor_status"] | null
+          updated_at?: string | null
+          vendor_name: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          id?: string
+          parent_vendor_id?: string | null
+          profile_id?: string
+          status?: Database["public"]["Enums"]["vendor_status"] | null
+          updated_at?: string | null
+          vendor_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vendors_parent_vendor_id_fkey"
+            columns: ["parent_vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vendors_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_current_user_role: {
+        Args: Record<PropertyKey, never>
+        Returns: Database["public"]["Enums"]["user_role"]
+      }
+      update_token_balance: {
+        Args: {
+          p_profile_id: string
+          p_amount_change: number
+          p_balance_type?: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      company_verification_status: "pending" | "verified" | "rejected"
+      loan_status:
+        | "pending"
+        | "approved"
+        | "active"
+        | "repaid"
+        | "defaulted"
+        | "disputed"
+      transaction_status: "pending" | "completed" | "failed"
+      transaction_type: "transfer" | "receive" | "mint" | "burn" | "redeem"
+      user_role: "bank" | "company" | "vendor"
+      vendor_status: "active" | "inactive" | "pending"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -133,6 +540,20 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      company_verification_status: ["pending", "verified", "rejected"],
+      loan_status: [
+        "pending",
+        "approved",
+        "active",
+        "repaid",
+        "defaulted",
+        "disputed",
+      ],
+      transaction_status: ["pending", "completed", "failed"],
+      transaction_type: ["transfer", "receive", "mint", "burn", "redeem"],
+      user_role: ["bank", "company", "vendor"],
+      vendor_status: ["active", "inactive", "pending"],
+    },
   },
 } as const
