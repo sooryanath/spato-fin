@@ -73,6 +73,12 @@ serve(async (req: Request) => {
         if (existingUser) {
           console.log(`Deleting existing user: ${user.email}`);
           await supabase.auth.admin.deleteUser(existingUser.id);
+          
+          // Also delete from profiles table
+          await supabase
+            .from('profiles')
+            .delete()
+            .eq('id', existingUser.id);
         }
 
         // Create new user with admin API
@@ -94,6 +100,25 @@ serve(async (req: Request) => {
         }
 
         console.log(`Created user: ${user.email} with ID: ${newUser.user.id}`);
+
+        // Insert into profiles table
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert({
+            id: newUser.user.id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            organization_name: user.organizationName
+          });
+
+        if (profileError) {
+          console.error(`Error creating profile for ${user.email}:`, profileError);
+          results.push({ email: user.email, error: profileError.message });
+          continue;
+        }
+
+        console.log(`Created profile for ${user.email}`);
 
         // Update token balance
         const { error: balanceError } = await supabase
