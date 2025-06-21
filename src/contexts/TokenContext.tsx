@@ -122,7 +122,7 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           from_profile_id: user.id,
           to_profile_id: toProfileId,
           transaction_type: 'transfer',
-          amount: amount.toString(),
+          amount: amount,
           status: 'completed',
           description
         })
@@ -168,7 +168,7 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         .insert({
           to_profile_id: user.id,
           transaction_type: 'mint',
-          amount: amount.toString(),
+          amount: amount,
           status: 'completed',
           description
         });
