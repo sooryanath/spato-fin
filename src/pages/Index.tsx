@@ -1,13 +1,14 @@
 
 import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ArrowRight, CreditCard, Building, Users, Shield, Zap, TrendingUp } from 'lucide-react';
 
 const Index = () => {
   const { user, isLoading } = useAuth();
+  const navigate = useNavigate();
 
   if (isLoading) {
     return (
@@ -30,6 +31,14 @@ const Index = () => {
         return <Navigate to="/profile" replace />;
     }
   }
+
+  const handleLaunchPlatform = () => {
+    navigate('/login');
+  };
+
+  const handleViewDocs = () => {
+    navigate('/docs');
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
@@ -56,14 +65,20 @@ const Index = () => {
           <span className="text-2xl font-bold text-white">Spato Finance</span>
         </div>
         <div className="flex items-center space-x-8">
-          <a href="/docs" className="text-gray-300 hover:text-white transition-colors font-medium">
-            Documentation
-          </a>
+          <button
+            onClick={handleViewDocs}
+            className="text-gray-300 hover:text-white transition-colors font-medium"
+          >
+            Read Documentation
+          </button>
           <a href="/vendor-signup" className="text-gray-300 hover:text-white transition-colors font-medium">
             Vendor Portal
           </a>
-          <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0 px-6 py-2 shadow-lg">
-            <a href="/login">Access Platform</a>
+          <Button 
+            className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0 px-6 py-2 shadow-lg"
+            onClick={() => navigate('/login')}
+          >
+            Access Platform
           </Button>
         </div>
       </header>
@@ -90,17 +105,24 @@ const Index = () => {
         </h1>
         
         <p className="text-xl text-gray-300 mb-12 max-w-4xl mx-auto leading-relaxed">
-          Revolutionary blockchain-powered ecosystem connecting Banks, NBFCs, syndicate companies and vendors. 
+          Blockchain-powered tokenization ecosystem connecting Banks, NBFCs, syndicate companies and vendors. 
           Enable efficient deep tier financing with advanced Credit Access Tokens and smart contract automation.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-8 py-4 text-lg shadow-2xl border-0">
+          <Button 
+            className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-8 py-4 text-lg shadow-2xl border-0"
+            onClick={handleLaunchPlatform}
+          >
             Launch Platform
             <ArrowRight className="ml-2 w-5 h-5" />
           </Button>
-          <Button variant="outline" className="border-white/30 text-white hover:bg-white/10 px-8 py-4 text-lg backdrop-blur-lg">
-            View Documentation
+          <Button 
+            variant="outline" 
+            className="border-emerald-400/50 text-emerald-300 hover:bg-emerald-500/20 hover:text-emerald-200 px-8 py-4 text-lg backdrop-blur-lg"
+            onClick={handleViewDocs}
+          >
+            Read Documentation
           </Button>
         </div>
       </section>
