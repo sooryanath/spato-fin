@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
@@ -57,9 +56,9 @@ const Index = () => {
       {/* Hero Section */}
       <section className="px-6 py-20 text-center max-w-6xl mx-auto">
         <h1 className="text-5xl font-bold text-gray-900 leading-tight mb-8">
-          Platform helps credible sub-vendors access{' '}
-          <span className="text-blue-600">collateral-free working capital loans</span>{' '}
-          from banks and NBFCs instantly through credit access tokenization (CAT).
+          <span className="text-blue-600">Deep Tier Financing Platform for MSMEs</span>{' '}
+          <br />
+          Quick Working Capital Loans against PO
         </h1>
         
         <p className="text-xl text-gray-600 mb-12 max-w-4xl mx-auto leading-relaxed">
