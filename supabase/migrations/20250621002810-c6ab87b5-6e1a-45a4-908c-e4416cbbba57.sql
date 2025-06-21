@@ -1,6 +1,25 @@
 
--- Insert demo users into auth.users table with proper authentication
--- Note: These are demo accounts for testing purposes
+-- Delete existing demo users and recreate them with proper Supabase authentication
+DELETE FROM auth.users WHERE id IN (
+  '00000000-0000-0000-0000-000000000001',
+  '00000000-0000-0000-0000-000000000002', 
+  '00000000-0000-0000-0000-000000000003'
+);
+
+-- Delete corresponding profiles and token balances (if they exist)
+DELETE FROM public.profiles WHERE id IN (
+  '00000000-0000-0000-0000-000000000001',
+  '00000000-0000-0000-0000-000000000002',
+  '00000000-0000-0000-0000-000000000003'
+);
+
+DELETE FROM public.token_balances WHERE profile_id IN (
+  '00000000-0000-0000-0000-000000000001',
+  '00000000-0000-0000-0000-000000000002',
+  '00000000-0000-0000-0000-000000000003'
+);
+
+-- Insert demo users with proper Supabase password hashing
 INSERT INTO auth.users (
   id,
   instance_id,
@@ -33,7 +52,7 @@ INSERT INTO auth.users (
   '00000000-0000-0000-0000-000000000001',
   '00000000-0000-0000-0000-000000000000',
   'bank@hdfc.com',
-  '$2a$10$4K/MDQCgUd5ZPX5ULk3Mlu6VLwz1yp1tMQzxVxEj8tKp1YbDhWJg2', -- bcrypt hash for 'demo123'
+  crypt('demo123', gen_salt('bf')), -- Use Supabase's crypt function
   NOW(),
   NOW(),
   NOW(),
@@ -61,7 +80,7 @@ INSERT INTO auth.users (
   '00000000-0000-0000-0000-000000000002',
   '00000000-0000-0000-0000-000000000000',
   'finance@techcorp.com',
-  '$2a$10$4K/MDQCgUd5ZPX5ULk3Mlu6VLwz1yp1tMQzxVxEj8tKp1YbDhWJg2', -- bcrypt hash for 'demo123'
+  crypt('demo123', gen_salt('bf')), -- Use Supabase's crypt function
   NOW(),
   NOW(),
   NOW(),
@@ -89,7 +108,7 @@ INSERT INTO auth.users (
   '00000000-0000-0000-0000-000000000003',
   '00000000-0000-0000-0000-000000000000',
   'vendor@supplies.com',
-  '$2a$10$4K/MDQCgUd5ZPX5ULk3Mlu6VLwz1yp1tMQzxVxEj8tKp1YbDhWJg2', -- bcrypt hash for 'demo123'
+  crypt('demo123', gen_salt('bf')), -- Use Supabase's crypt function
   NOW(),
   NOW(),
   NOW(),
@@ -112,9 +131,13 @@ INSERT INTO auth.users (
   false,
   null
 )
-ON CONFLICT (id) DO NOTHING;
+ON CONFLICT (id) DO UPDATE SET
+  email = EXCLUDED.email,
+  encrypted_password = EXCLUDED.encrypted_password,
+  raw_user_meta_data = EXCLUDED.raw_user_meta_data,
+  updated_at = NOW();
 
--- Insert corresponding profiles (will be created automatically by trigger, but let's ensure they exist)
+-- Insert corresponding profiles (use UPSERT to handle existing records)
 INSERT INTO public.profiles (id, name, email, role, organization_name)
 VALUES 
 (
@@ -138,12 +161,21 @@ VALUES
   'vendor',
   'Global Supplies Co'
 )
-ON CONFLICT (id) DO NOTHING;
+ON CONFLICT (id) DO UPDATE SET
+  name = EXCLUDED.name,
+  email = EXCLUDED.email,
+  role = EXCLUDED.role,
+  organization_name = EXCLUDED.organization_name,
+  updated_at = NOW();
 
--- Ensure token balances exist for demo users
+-- Insert token balances for demo users (use UPSERT to handle existing records)
 INSERT INTO public.token_balances (profile_id, available_balance, locked_balance, total_balance)
 VALUES 
 ('00000000-0000-0000-0000-000000000001', 1000000, 0, 1000000), -- Bank starts with 1M tokens
 ('00000000-0000-0000-0000-000000000002', 50000, 0, 50000),     -- Company starts with 50K tokens
 ('00000000-0000-0000-0000-000000000003', 10000, 0, 10000)      -- Vendor starts with 10K tokens
-ON CONFLICT (profile_id) DO NOTHING;
+ON CONFLICT (profile_id) DO UPDATE SET
+  available_balance = EXCLUDED.available_balance,
+  locked_balance = EXCLUDED.locked_balance,
+  total_balance = EXCLUDED.total_balance,
+  updated_at = NOW();
