@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,11 +9,13 @@ import { useAuth, UserRole } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { toast } from '@/hooks/use-toast';
-import { Banknote } from 'lucide-react';
+import { Banknote, Settings } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 const Login = () => {
   const { login, signup, user, isLoading } = useAuth();
   const navigate = useNavigate();
+  const [isSettingUpUsers, setIsSettingUpUsers] = useState(false);
   
   const [loginForm, setLoginForm] = useState({
     email: '',
@@ -48,6 +49,46 @@ const Login = () => {
       }
     }
   }, [user, navigate]);
+
+  const setupDemoUsers = async () => {
+    setIsSettingUpUsers(true);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('setup-demo-users');
+      
+      if (error) {
+        console.error('Error setting up demo users:', error);
+        toast({
+          title: "Setup Failed",
+          description: error.message || "Failed to setup demo users",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (data?.success) {
+        toast({
+          title: "Demo Users Created",
+          description: "Demo accounts have been set up successfully. You can now log in with the demo credentials.",
+        });
+      } else {
+        toast({
+          title: "Setup Issues",
+          description: data?.message || "Some users may not have been created properly",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      toast({
+        title: "Setup Error",
+        description: "An unexpected error occurred while setting up demo users",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSettingUpUsers(false);
+    }
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -197,13 +238,28 @@ const Login = () => {
                 </form>
 
                 <div className="mt-4 p-4 bg-blue-50 rounded-lg">
-                  <p className="text-sm text-blue-700 font-medium mb-2">Demo Accounts:</p>
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-sm text-blue-700 font-medium">Demo Accounts:</p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={setupDemoUsers}
+                      disabled={isSettingUpUsers}
+                      className="text-xs h-7 px-2"
+                    >
+                      <Settings className="h-3 w-3 mr-1" />
+                      {isSettingUpUsers ? 'Setting up...' : 'Setup'}
+                    </Button>
+                  </div>
                   <div className="space-y-1 text-xs text-blue-600">
                     <p>Bank: bank@hdfc.com</p>
                     <p>Company: finance@techcorp.com</p>
                     <p>Vendor: vendor@supplies.com</p>
                     <p>Password: demo123</p>
                   </div>
+                  <p className="text-xs text-blue-500 mt-2">
+                    Click "Setup" if you're having login issues with demo accounts.
+                  </p>
                 </div>
               </TabsContent>
               
