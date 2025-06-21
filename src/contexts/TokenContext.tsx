@@ -62,9 +62,9 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
       if (data) {
         setBalance({
-          available: parseFloat(data.available_balance || '0'),
-          locked: parseFloat(data.locked_balance || '0'),
-          total: parseFloat(data.total_balance || '0')
+          available: parseFloat(data.available_balance?.toString() || '0'),
+          locked: parseFloat(data.locked_balance?.toString() || '0'),
+          total: parseFloat(data.total_balance?.toString() || '0')
         });
       }
     } catch (error) {
@@ -80,8 +80,8 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         .from('token_transactions')
         .select(`
           *,
-          from_profile:from_profile_id(name, organization_name),
-          to_profile:to_profile_id(name, organization_name)
+          from_profile:profiles!from_profile_id(name, organization_name),
+          to_profile:profiles!to_profile_id(name, organization_name)
         `)
         .or(`from_profile_id.eq.${user.id},to_profile_id.eq.${user.id}`)
         .order('created_at', { ascending: false })
@@ -95,7 +95,7 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       const formattedTransactions: TokenTransaction[] = data.map(tx => ({
         id: tx.id,
         type: tx.transaction_type as TokenTransaction['type'],
-        amount: parseFloat(tx.amount),
+        amount: parseFloat(tx.amount?.toString() || '0'),
         from: tx.from_profile?.organization_name || tx.from_profile?.name,
         to: tx.to_profile?.organization_name || tx.to_profile?.name,
         timestamp: new Date(tx.created_at),
@@ -122,7 +122,7 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           from_profile_id: user.id,
           to_profile_id: toProfileId,
           transaction_type: 'transfer',
-          amount: amount,
+          amount: amount.toString(),
           status: 'completed',
           description
         })
@@ -168,7 +168,7 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         .insert({
           to_profile_id: user.id,
           transaction_type: 'mint',
-          amount: amount,
+          amount: amount.toString(),
           status: 'completed',
           description
         });
