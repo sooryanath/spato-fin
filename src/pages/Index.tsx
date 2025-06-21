@@ -1,9 +1,10 @@
+
 import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import DemoSetup from '@/components/DemoSetup';
+import { Card, CardContent } from '@/components/ui/card';
+import { ArrowRight, CreditCard, Building, Users } from 'lucide-react';
 
 const Index = () => {
   const { user, isLoading } = useAuth();
@@ -31,81 +32,97 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col items-center justify-center p-4">
-      <div className="max-w-4xl w-full space-y-8">
-        {/* Header */}
-        <div className="text-center space-y-4">
-          <h1 className="text-4xl font-bold text-gray-900">
-            Welcome to $CAT Token Platform
-          </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            A decentralized platform for supply chain financing using tokenized assets
-          </p>
-        </div>
-
-        {/* Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Demo Setup */}
-          <div className="space-y-4">
-            <h2 className="text-2xl font-semibold text-gray-800">Try the Demo</h2>
-            <DemoSetup />
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
+      {/* Header */}
+      <header className="flex items-center justify-between px-6 py-4 bg-white border-b">
+        <div className="flex items-center space-x-3">
+          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+            <CreditCard className="w-5 h-5 text-white" />
           </div>
-
-          {/* Login Options */}
-          <div className="space-y-4">
-            <h2 className="text-2xl font-semibold text-gray-800">Get Started</h2>
-            <Card>
-              <CardHeader>
-                <CardTitle>Access Platform</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <p className="text-sm text-gray-600">
-                  Login to access your dashboard and manage your $CAT tokens
-                </p>
-                <Button asChild className="w-full">
-                  <a href="/login">Login to Platform</a>
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
+          <span className="text-xl font-semibold text-gray-900">Spato Finance</span>
         </div>
+        <div className="flex items-center space-x-6">
+          <a href="/docs" className="text-gray-600 hover:text-gray-900 transition-colors">
+            Docs
+          </a>
+          <a href="/vendor-signup" className="text-gray-600 hover:text-gray-900 transition-colors">
+            Vendor SignUp
+          </a>
+          <Button asChild className="bg-gray-900 hover:bg-gray-800">
+            <a href="/login">Login</a>
+          </Button>
+        </div>
+      </header>
 
-        {/* Features */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">For Banks</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-gray-600">
-                Issue and manage $CAT tokens, oversee supply chain financing, monitor transactions
+      {/* Hero Section */}
+      <section className="px-6 py-20 text-center max-w-6xl mx-auto">
+        <h1 className="text-5xl font-bold text-gray-900 leading-tight mb-8">
+          Platform helps credible sub-vendors access{' '}
+          <span className="text-blue-600">collateral-free working capital loans</span>{' '}
+          from banks and NBFCs instantly through credit access tokenization (CAT).
+        </h1>
+        
+        <p className="text-xl text-gray-600 mb-12 max-w-4xl mx-auto leading-relaxed">
+          Connect Banks, NBFCs other formal lenders, syndicate companies and vendors in a 
+          seamless token gated ecosystem. Enable efficient deep tire financing with blockchain 
+          and Credit Access Tokens.
+        </p>
+
+        <Button className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg">
+          Get Started
+          <ArrowRight className="ml-2 w-5 h-5" />
+        </Button>
+      </section>
+
+      {/* Features Section */}
+      <section className="px-6 py-16 max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {/* Credit Access Tokens */}
+          <Card className="p-8 text-center bg-white border-gray-200 hover:shadow-lg transition-shadow">
+            <div className="w-16 h-16 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-6">
+              <CreditCard className="w-8 h-8 text-blue-600" />
+            </div>
+            <CardContent className="p-0">
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                Credit Access Tokens
+              </h3>
+              <p className="text-gray-600 leading-relaxed">
+                Banks can issue Credit Access Tokens (CAT) to Syndicate Companies for supply chain financing
               </p>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">For Companies</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-gray-600">
-                Request financing, manage vendor relationships, track token transactions
+          {/* Syndicate Management */}
+          <Card className="p-8 text-center bg-white border-gray-200 hover:shadow-lg transition-shadow">
+            <div className="w-16 h-16 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-6">
+              <Building className="w-8 h-8 text-blue-600" />
+            </div>
+            <CardContent className="p-0">
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                Syndicate Management
+              </h3>
+              <p className="text-gray-600 leading-relaxed">
+                Syndicate companies can transfer CAT tokens to their vendors to finance their work
               </p>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">For Vendors</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-gray-600">
-                Receive payments, manage sub-vendors, redeem tokens for cash
+          {/* Vendor Network */}
+          <Card className="p-8 text-center bg-white border-gray-200 hover:shadow-lg transition-shadow">
+            <div className="w-16 h-16 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-6">
+              <Users className="w-8 h-8 text-blue-600" />
+            </div>
+            <CardContent className="p-0">
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                Vendor Network
+              </h3>
+              <p className="text-gray-600 leading-relaxed">
+                Vendors can redeem CAT for loans from bank or transfer CAT to their own sub vendors
               </p>
             </CardContent>
           </Card>
         </div>
-      </div>
+      </section>
     </div>
   );
 };
