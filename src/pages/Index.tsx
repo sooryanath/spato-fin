@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Navigate, useNavigate } from 'react-router-dom';
@@ -71,9 +70,6 @@ const Index = () => {
           >
             Read Documentation
           </button>
-          <a href="/vendor-signup" className="text-gray-300 hover:text-white transition-colors font-medium">
-            Vendor Portal
-          </a>
           <Button 
             className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0 px-6 py-2 shadow-lg"
             onClick={() => navigate('/login')}
@@ -100,7 +96,7 @@ const Index = () => {
           <span className="text-white/90 text-5xl md:text-6xl">Platform for MSMEs</span>
           <br />
           <span className="text-4xl md:text-5xl text-gray-300 font-light">
-            Quick Working Capital Loans against PO
+            Instant Working Capital Loans for credit vendors
           </span>
         </h1>
         
@@ -119,7 +115,7 @@ const Index = () => {
           </Button>
           <Button 
             variant="outline" 
-            className="border-emerald-400/50 text-emerald-300 hover:bg-emerald-500/20 hover:text-emerald-200 px-8 py-4 text-lg backdrop-blur-lg"
+            className="border-purple-400/50 text-purple-300 hover:bg-purple-500/20 hover:text-purple-200 px-8 py-4 text-lg backdrop-blur-lg"
             onClick={handleViewDocs}
           >
             Read Documentation
@@ -139,7 +135,7 @@ const Index = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Credit Access Tokens */}
+          {/* Tokenizing Credit Access */}
           <Card className="bg-white/5 backdrop-blur-lg border border-white/10 hover:bg-white/10 transition-all duration-300 hover:scale-105 shadow-2xl">
             <div className="p-8 text-center">
               <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
@@ -147,10 +143,10 @@ const Index = () => {
               </div>
               <CardContent className="p-0">
                 <h3 className="text-2xl font-bold text-white mb-4">
-                  Credit Access Tokens
+                  Tokenizing Credit Access
                 </h3>
                 <p className="text-gray-300 leading-relaxed">
-                  Banks issue secure, blockchain-based Credit Access Tokens (CAT) to Syndicate Companies for transparent supply chain financing
+                  Platform tokenize access to formal credit by leveraging trust and relationship with Syndicate companies, Vendors and Banks, which helps vendors to get formal credit instantly using a Credit Access Token (CAT)
                 </p>
               </CardContent>
             </div>
