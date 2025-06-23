@@ -78,21 +78,30 @@ export const Web3Provider: React.FC<Web3ProviderProps> = ({ children }) => {
       try {
         const starknetWindowObject = getStarknet();
         
-        if (starknetWindowObject && starknetWindowObject.isConnected) {
-          const connectedWallet = await starknetWindowObject.get();
+        if (starknetWindowObject) {
+          const availableWallets = await starknetWindowObject.getAvailableWallets();
           
-          if (connectedWallet && connectedWallet.isConnected && connectedWallet.selectedAddress) {
-            setWallet(connectedWallet);
-            setWalletAddress(connectedWallet.selectedAddress);
-            setIsConnected(true);
-            
-            if (provider && connectedWallet.selectedAddress) {
-              const newAccount = new Account(
-                provider,
-                connectedWallet.selectedAddress,
-                connectedWallet.signer
-              );
-              setAccount(newAccount);
+          for (const walletOption of availableWallets) {
+            try {
+              const wallet = await starknetWindowObject.enable(walletOption);
+              
+              if (wallet && wallet.isConnected && wallet.selectedAddress) {
+                setWallet(wallet);
+                setWalletAddress(wallet.selectedAddress);
+                setIsConnected(true);
+                
+                if (provider && wallet.selectedAddress) {
+                  const newAccount = new Account(
+                    provider,
+                    wallet.selectedAddress,
+                    wallet.signer
+                  );
+                  setAccount(newAccount);
+                }
+                break;
+              }
+            } catch (walletError) {
+              console.log('Wallet not connected:', walletOption.id);
             }
           }
         }
@@ -176,25 +185,29 @@ export const Web3Provider: React.FC<Web3ProviderProps> = ({ children }) => {
       const starknetWindowObject = getStarknet();
 
       if (starknetWindowObject) {
-        const connectedWallet = await starknetWindowObject.get();
+        const availableWallets = await starknetWindowObject.getAvailableWallets();
         
-        if (connectedWallet) {
-          await connectedWallet.enable();
+        if (availableWallets.length > 0) {
+          // Try to connect to the first available wallet
+          const walletOption = availableWallets[0];
+          const connectedWallet = await starknetWindowObject.enable(walletOption);
           
-          setWallet(connectedWallet);
-          setWalletAddress(connectedWallet.selectedAddress || null);
-          setIsConnected(true);
-          
-          if (provider && connectedWallet.selectedAddress) {
-            const newAccount = new Account(
-              provider,
-              connectedWallet.selectedAddress,
-              connectedWallet.signer
-            );
-            setAccount(newAccount);
+          if (connectedWallet && connectedWallet.selectedAddress) {
+            setWallet(connectedWallet);
+            setWalletAddress(connectedWallet.selectedAddress);
+            setIsConnected(true);
+            
+            if (provider && connectedWallet.selectedAddress) {
+              const newAccount = new Account(
+                provider,
+                connectedWallet.selectedAddress,
+                connectedWallet.signer
+              );
+              setAccount(newAccount);
+            }
+            
+            return true;
           }
-          
-          return true;
         }
       }
       
