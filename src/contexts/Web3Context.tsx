@@ -79,17 +79,21 @@ export const Web3Provider: React.FC<Web3ProviderProps> = ({ children }) => {
         const starknetWindowObject = getStarknet();
         
         if (starknetWindowObject && starknetWindowObject.isConnected) {
-          setWallet(starknetWindowObject);
-          setWalletAddress(starknetWindowObject.selectedAddress || null);
-          setIsConnected(true);
+          const connectedWallet = await starknetWindowObject.get();
           
-          if (provider && starknetWindowObject.selectedAddress) {
-            const newAccount = new Account(
-              provider,
-              starknetWindowObject.selectedAddress,
-              starknetWindowObject.signer
-            );
-            setAccount(newAccount);
+          if (connectedWallet && connectedWallet.isConnected && connectedWallet.selectedAddress) {
+            setWallet(connectedWallet);
+            setWalletAddress(connectedWallet.selectedAddress);
+            setIsConnected(true);
+            
+            if (provider && connectedWallet.selectedAddress) {
+              const newAccount = new Account(
+                provider,
+                connectedWallet.selectedAddress,
+                connectedWallet.signer
+              );
+              setAccount(newAccount);
+            }
           }
         }
       } catch (err) {
@@ -172,22 +176,26 @@ export const Web3Provider: React.FC<Web3ProviderProps> = ({ children }) => {
       const starknetWindowObject = getStarknet();
 
       if (starknetWindowObject) {
-        await starknetWindowObject.enable({ starknetVersion: "v5" });
+        const connectedWallet = await starknetWindowObject.get();
         
-        setWallet(starknetWindowObject);
-        setWalletAddress(starknetWindowObject.selectedAddress || null);
-        setIsConnected(true);
-        
-        if (provider && starknetWindowObject.selectedAddress) {
-          const newAccount = new Account(
-            provider,
-            starknetWindowObject.selectedAddress,
-            starknetWindowObject.signer
-          );
-          setAccount(newAccount);
+        if (connectedWallet) {
+          await connectedWallet.enable();
+          
+          setWallet(connectedWallet);
+          setWalletAddress(connectedWallet.selectedAddress || null);
+          setIsConnected(true);
+          
+          if (provider && connectedWallet.selectedAddress) {
+            const newAccount = new Account(
+              provider,
+              connectedWallet.selectedAddress,
+              connectedWallet.signer
+            );
+            setAccount(newAccount);
+          }
+          
+          return true;
         }
-        
-        return true;
       }
       
       setError('No Starknet wallet found. Please install ArgentX or Braavos.');
