@@ -7,9 +7,6 @@ import TokenBalance from '@/components/token/TokenBalance';
 import TokenTransfer from '@/components/token/TokenTransfer';
 import TokenHistory from '@/components/token/TokenHistory';
 import TokenMint from '@/components/token/TokenMint';
-import WalletConnection from '@/components/web3/WalletConnection';
-import Web3TokenBalance from '@/components/web3/Web3TokenBalance';
-import Web3TokenMint from '@/components/web3/Web3TokenMint';
 
 const Profile = () => {
   const { user } = useAuth();
@@ -46,28 +43,16 @@ const Profile = () => {
           </CardContent>
         </Card>
 
-        {/* Web3 Wallet Connection */}
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Web3 Integration</h2>
-          <WalletConnection />
-        </div>
-
-        {/* Token Balance - Traditional and Web3 */}
+        {/* Token Balance */}
         <div>
           <h2 className="text-2xl font-bold text-gray-900 mb-4">$CAT Token Portfolio</h2>
-          <div className="space-y-4">
-            <TokenBalance />
-            <Web3TokenBalance />
-          </div>
+          <TokenBalance />
         </div>
 
         {/* Token Actions */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <TokenTransfer />
-          <div className="space-y-4">
-            <TokenMint />
-            <Web3TokenMint />
-          </div>
+          <TokenMint />
         </div>
 
         {/* Token History */}
