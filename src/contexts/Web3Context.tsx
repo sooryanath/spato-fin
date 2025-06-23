@@ -76,18 +76,18 @@ export const Web3Provider: React.FC<Web3ProviderProps> = ({ children }) => {
   useEffect(() => {
     const checkConnection = async () => {
       try {
-        const starknet = getStarknet();
+        const starknetWindowObject = getStarknet();
         
-        if (starknet && starknet.isConnected) {
-          setWallet(starknet);
-          setWalletAddress(starknet.selectedAddress || null);
+        if (starknetWindowObject && starknetWindowObject.isConnected) {
+          setWallet(starknetWindowObject);
+          setWalletAddress(starknetWindowObject.selectedAddress || null);
           setIsConnected(true);
           
-          if (provider && starknet.selectedAddress) {
+          if (provider && starknetWindowObject.selectedAddress) {
             const newAccount = new Account(
               provider,
-              starknet.selectedAddress,
-              starknet.signer
+              starknetWindowObject.selectedAddress,
+              starknetWindowObject.signer
             );
             setAccount(newAccount);
           }
@@ -169,20 +169,20 @@ export const Web3Provider: React.FC<Web3ProviderProps> = ({ children }) => {
     setError(null);
     
     try {
-      const starknet = getStarknet();
+      const starknetWindowObject = getStarknet();
 
-      if (starknet) {
-        await starknet.enable();
+      if (starknetWindowObject) {
+        await starknetWindowObject.enable({ starknetVersion: "v5" });
         
-        setWallet(starknet);
-        setWalletAddress(starknet.selectedAddress || null);
+        setWallet(starknetWindowObject);
+        setWalletAddress(starknetWindowObject.selectedAddress || null);
         setIsConnected(true);
         
-        if (provider && starknet.selectedAddress) {
+        if (provider && starknetWindowObject.selectedAddress) {
           const newAccount = new Account(
             provider,
-            starknet.selectedAddress,
-            starknet.signer
+            starknetWindowObject.selectedAddress,
+            starknetWindowObject.signer
           );
           setAccount(newAccount);
         }
