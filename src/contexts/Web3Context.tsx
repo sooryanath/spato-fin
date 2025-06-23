@@ -1,14 +1,14 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { connect, disconnect, StarknetWindowObject } from 'get-starknet-core';
-import { Contract, Provider, Account } from 'starknet';
+import { getStarknet } from 'get-starknet-core';
+import { Contract, RpcProvider, Account } from 'starknet';
 
 export interface Web3ContextType {
   // Wallet connection state
   isConnected: boolean;
   walletAddress: string | null;
-  wallet: StarknetWindowObject | null;
-  provider: Provider | null;
+  wallet: any | null;
+  provider: RpcProvider | null;
   account: Account | null;
   
   // Connection methods
@@ -46,8 +46,8 @@ const TOKEN_CONTRACT_ADDRESS = '0x...'; // Placeholder for deployed ERC20 contra
 export const Web3Provider: React.FC<Web3ProviderProps> = ({ children }) => {
   const [isConnected, setIsConnected] = useState(false);
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
-  const [wallet, setWallet] = useState<StarknetWindowObject | null>(null);
-  const [provider, setProvider] = useState<Provider | null>(null);
+  const [wallet, setWallet] = useState<any | null>(null);
+  const [provider, setProvider] = useState<RpcProvider | null>(null);
   const [account, setAccount] = useState<Account | null>(null);
   const [tokenContract, setTokenContract] = useState<Contract | null>(null);
   const [isConnecting, setIsConnecting] = useState(false);
@@ -58,9 +58,9 @@ export const Web3Provider: React.FC<Web3ProviderProps> = ({ children }) => {
   useEffect(() => {
     const initProvider = () => {
       try {
-        // Use Starknet mainnet provider (can be changed to testnet)
-        const newProvider = new Provider({ 
-          sequencer: { network: 'mainnet-alpha' } 
+        // Use Starknet mainnet provider with correct RpcProvider options
+        const newProvider = new RpcProvider({ 
+          nodeUrl: 'https://starknet-mainnet.public.blastapi.io'
         });
         setProvider(newProvider);
       } catch (err) {
@@ -76,21 +76,18 @@ export const Web3Provider: React.FC<Web3ProviderProps> = ({ children }) => {
   useEffect(() => {
     const checkConnection = async () => {
       try {
-        const lastWallet = await connect({ 
-          modalMode: 'neverAsk',
-          modalTheme: 'light'
-        });
+        const starknet = getStarknet();
         
-        if (lastWallet && lastWallet.isConnected) {
-          setWallet(lastWallet);
-          setWalletAddress(lastWallet.selectedAddress || null);
+        if (starknet && starknet.isConnected) {
+          setWallet(starknet);
+          setWalletAddress(starknet.selectedAddress || null);
           setIsConnected(true);
           
-          if (provider) {
+          if (provider && starknet.selectedAddress) {
             const newAccount = new Account(
               provider,
-              lastWallet.selectedAddress!,
-              lastWallet.signer
+              starknet.selectedAddress,
+              starknet.signer
             );
             setAccount(newAccount);
           }
@@ -172,23 +169,20 @@ export const Web3Provider: React.FC<Web3ProviderProps> = ({ children }) => {
     setError(null);
     
     try {
-      const connectedWallet = await connect({
-        modalMode: 'alwaysAsk',
-        modalTheme: 'light'
-      });
+      const starknet = getStarknet();
 
-      if (connectedWallet) {
-        await connectedWallet.enable();
+      if (starknet) {
+        await starknet.enable();
         
-        setWallet(connectedWallet);
-        setWalletAddress(connectedWallet.selectedAddress || null);
+        setWallet(starknet);
+        setWalletAddress(starknet.selectedAddress || null);
         setIsConnected(true);
         
-        if (provider && connectedWallet.selectedAddress) {
+        if (provider && starknet.selectedAddress) {
           const newAccount = new Account(
             provider,
-            connectedWallet.selectedAddress,
-            connectedWallet.signer
+            starknet.selectedAddress,
+            starknet.signer
           );
           setAccount(newAccount);
         }
@@ -196,6 +190,7 @@ export const Web3Provider: React.FC<Web3ProviderProps> = ({ children }) => {
         return true;
       }
       
+      setError('No Starknet wallet found. Please install ArgentX or Braavos.');
       return false;
     } catch (err) {
       console.error('Failed to connect wallet:', err);
@@ -208,10 +203,6 @@ export const Web3Provider: React.FC<Web3ProviderProps> = ({ children }) => {
 
   const disconnectWallet = () => {
     try {
-      if (wallet) {
-        disconnect({ clearLastWallet: true });
-      }
-      
       setWallet(null);
       setWalletAddress(null);
       setAccount(null);
