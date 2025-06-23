@@ -27,11 +27,11 @@ export const connectToWallet = async (provider: RpcProvider | null) => {
     throw new Error('Failed to connect wallet');
   }
 
-  // Create account without signer property (using wallet directly)
+  // Create account using the wallet's signer
   const account = new Account(
     provider,
     connectedWallet.selectedAddress,
-    connectedWallet
+    connectedWallet.signer
   );
 
   return {
@@ -59,7 +59,7 @@ export const checkExistingConnection = async (provider: RpcProvider | null) => {
           const account = new Account(
             provider,
             wallet.selectedAddress,
-            wallet
+            wallet.signer
           );
           
           return {
