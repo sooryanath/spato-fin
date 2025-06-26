@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Banknote, LogOut, Home, User } from 'lucide-react';
+import WalletConnectButton from '@/components/wallet/WalletConnectButton';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -31,6 +32,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
               <span className="text-sm text-gray-600">
                 {user?.organizationName} • {user?.role?.toUpperCase()}
               </span>
+              <WalletConnectButton variant="outline" size="sm" />
               <Button variant="ghost" size="sm" onClick={() => navigate('/')}>
                 <Home className="h-4 w-4 mr-2" />
                 Home
