@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Contract, Account, Provider, constants } from 'starknet';
+import { Contract, Account, Provider, constants, uint256, validateAndParseAddress } from 'starknet';
 import { toast } from '@/hooks/use-toast';
 
 interface Web3ContextType {
@@ -123,6 +123,16 @@ export const Web3Provider: React.FC<{ children: React.ReactNode }> = ({ children
     });
   };
 
+  const validateStarknetAddress = (address: string): boolean => {
+    try {
+      validateAndParseAddress(address);
+      return true;
+    } catch (error) {
+      console.error('Invalid Starknet address:', error);
+      return false;
+    }
+  };
+
   const mintTokens = async (recipientAddress: string, amount: number): Promise<string | null> => {
     if (!account || !isConnected) {
       toast({
@@ -136,27 +146,46 @@ export const Web3Provider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       setIsLoading(true);
       
+      console.log('Starting mint process...', { recipientAddress, amount });
+      
+      // Validate recipient address
+      if (!validateStarknetAddress(recipientAddress)) {
+        toast({
+          title: "Invalid Address",
+          description: "Please enter a valid Starknet address",
+          variant: "destructive",
+        });
+        return null;
+      }
+
       // Create contract instance
       const contract = new Contract(TOKEN_CONTRACT_ABI, CONTRACT_ADDRESS, account);
+      console.log('Contract instance created');
       
-      // Prepare the amount as Uint256 (amount * 10^18 for 18 decimals)
-      const amountBN = (BigInt(amount) * BigInt(10**18)).toString();
-      const amountUint256 = {
-        low: amountBN,
-        high: "0"
-      };
+      // Convert amount to wei (18 decimals) and then to Uint256
+      const amountInWei = BigInt(amount) * BigInt(10**18);
+      console.log('Amount in wei:', amountInWei.toString());
+      
+      // Use Starknet's uint256 utility to properly construct Uint256
+      const amountUint256 = uint256.bnToUint256(amountInWei);
+      console.log('Amount as Uint256:', amountUint256);
 
-      // Call the mint function
+      // Prepare the mint call
       const mintCall = contract.populate('mint', [recipientAddress, amountUint256]);
-      const result = await account.execute([mintCall]);
+      console.log('Mint call prepared:', mintCall);
       
       toast({
         title: "Transaction Submitted",
         description: `Minting ${amount} tokens to ${recipientAddress.slice(0, 6)}...${recipientAddress.slice(-4)}`,
       });
 
+      // Execute the transaction
+      const result = await account.execute([mintCall]);
+      console.log('Transaction executed:', result);
+
       // Wait for transaction confirmation
       const receipt = await account.waitForTransaction(result.transaction_hash);
+      console.log('Transaction receipt:', receipt);
       
       // Check if transaction was successful (different status properties possible)
       const isSuccessful = receipt.status === 'ACCEPTED_ON_L2' || 
@@ -170,13 +199,28 @@ export const Web3Provider: React.FC<{ children: React.ReactNode }> = ({ children
         });
         return result.transaction_hash;
       } else {
-        throw new Error('Transaction failed');
+        console.error('Transaction failed with receipt:', receipt);
+        throw new Error(`Transaction failed with status: ${receipt.status || receipt.execution_status || receipt.finality_status}`);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error minting tokens:', error);
+      
+      // Provide more specific error messages
+      let errorMessage = "Failed to mint tokens. Please check your wallet and try again.";
+      
+      if (error.message?.includes('felt()')) {
+        errorMessage = "Address format error. Please ensure you're using a valid Starknet address.";
+      } else if (error.message?.includes('insufficient')) {
+        errorMessage = "Insufficient funds for gas fees. Please add ETH to your wallet.";
+      } else if (error.message?.includes('rejected')) {
+        errorMessage = "Transaction was rejected. Please try again.";
+      } else if (error.message?.includes('timeout')) {
+        errorMessage = "Transaction timed out. Please check the network and try again.";
+      }
+      
       toast({
         title: "Minting Failed",
-        description: "Failed to mint tokens. Please check your wallet and try again.",
+        description: errorMessage,
         variant: "destructive",
       });
       return null;
