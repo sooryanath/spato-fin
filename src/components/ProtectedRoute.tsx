@@ -4,10 +4,15 @@ import { Navigate } from 'react-router-dom';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  allowedRoles: UserRole[];
+  requiredRole?: UserRole;
+  allowedRoles?: UserRole[];
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRoles }) => {
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
+  children, 
+  requiredRole, 
+  allowedRoles 
+}) => {
   const { user, isLoading } = useAuth();
 
   if (isLoading) {
@@ -22,7 +27,14 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRoles 
     return <Navigate to="/login" replace />;
   }
 
-  if (!allowedRoles.includes(user.role)) {
+  // Check if user role is allowed
+  const isAllowed = requiredRole 
+    ? user.role === requiredRole
+    : allowedRoles 
+    ? allowedRoles.includes(user.role)
+    : true;
+
+  if (!isAllowed) {
     return <Navigate to="/" replace />;
   }
 

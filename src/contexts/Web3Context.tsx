@@ -1,11 +1,11 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { connect, disconnect, Contract, Account, Provider, constants } from 'starknet';
+import { Contract, Account, Provider, constants } from 'starknet';
 import { toast } from '@/hooks/use-toast';
 
 interface Web3ContextType {
   isConnected: boolean;
-  account: Account | null;
+  account: any | null; // Using any for wallet account to avoid type conflicts
   address: string | null;
   connect: () => Promise<void>;
   disconnect: () => void;
@@ -48,7 +48,7 @@ const CONTRACT_ADDRESS = '0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab072018
 
 export const Web3Provider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isConnected, setIsConnected] = useState(false);
-  const [account, setAccount] = useState<Account | null>(null);
+  const [account, setAccount] = useState<any | null>(null);
   const [address, setAddress] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -158,7 +158,12 @@ export const Web3Provider: React.FC<{ children: React.ReactNode }> = ({ children
       // Wait for transaction confirmation
       const receipt = await account.waitForTransaction(result.transaction_hash);
       
-      if (receipt.status === 'ACCEPTED_ON_L2') {
+      // Check if transaction was successful (different status properties possible)
+      const isSuccessful = receipt.status === 'ACCEPTED_ON_L2' || 
+                          receipt.execution_status === 'SUCCEEDED' ||
+                          receipt.finality_status === 'ACCEPTED_ON_L2';
+      
+      if (isSuccessful) {
         toast({
           title: "Tokens Minted Successfully",
           description: `${amount} $CAT tokens have been minted and sent to ${recipientAddress.slice(0, 6)}...${recipientAddress.slice(-4)}`,
