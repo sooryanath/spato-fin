@@ -4,6 +4,8 @@ interface StarknetWalletProvider {
   isConnected: boolean;
   account?: {
     address: string;
+    execute(calls: any[]): Promise<{ transaction_hash: string }>;
+    waitForTransaction(hash: string): Promise<{ status: string }>;
   };
   chainId?: string;
 }

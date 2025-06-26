@@ -6,11 +6,11 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Wallet, ExternalLink } from 'lucide-react';
+import { useWeb3 } from '@/contexts/Web3Context';
 import { useToast } from '@/hooks/use-toast';
 
 interface WalletOption {
@@ -47,6 +47,7 @@ const WalletConnectDialog: React.FC<WalletConnectDialogProps> = ({
   open,
   onOpenChange,
 }) => {
+  const { connect, isLoading } = useWeb3();
   const { toast } = useToast();
 
   const handleWalletConnect = async (walletId: string) => {
@@ -63,14 +64,9 @@ const WalletConnectDialog: React.FC<WalletConnectDialogProps> = ({
         return;
       }
 
-      // Attempt to connect to the wallet
-      await connectWallet(walletId);
+      // Use the Web3 context connect function
+      await connect();
       onOpenChange(false);
-      
-      toast({
-        title: "Wallet connected",
-        description: "Successfully connected to your Starknet wallet",
-      });
     } catch (error) {
       console.error('Failed to connect wallet:', error);
       toast({
@@ -90,16 +86,6 @@ const WalletConnectDialog: React.FC<WalletConnectDialogProps> = ({
       return typeof window !== 'undefined' && 'starknet_braavos' in window;
     }
     return false;
-  };
-
-  const connectWallet = async (walletId: string) => {
-    if (walletId === 'argentX' && window.starknet) {
-      await window.starknet.enable();
-    } else if (walletId === 'braavos' && window.starknet_braavos) {
-      await window.starknet_braavos.enable();
-    } else {
-      throw new Error('Wallet not available');
-    }
   };
 
   const handleDownloadWallet = (downloadUrl: string) => {
@@ -143,8 +129,9 @@ const WalletConnectDialog: React.FC<WalletConnectDialogProps> = ({
                     <Button
                       size="sm"
                       onClick={() => handleWalletConnect(wallet.id)}
+                      disabled={isLoading}
                     >
-                      Connect
+                      {isLoading ? 'Connecting...' : 'Connect'}
                     </Button>
                   </div>
                 </div>

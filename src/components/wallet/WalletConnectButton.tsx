@@ -1,7 +1,8 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Wallet } from 'lucide-react';
+import { Wallet, Check } from 'lucide-react';
+import { useWeb3 } from '@/contexts/Web3Context';
 import WalletConnectDialog from './WalletConnectDialog';
 
 interface WalletConnectButtonProps {
@@ -16,17 +17,38 @@ const WalletConnectButton: React.FC<WalletConnectButtonProps> = ({
   className = '',
 }) => {
   const [dialogOpen, setDialogOpen] = useState(false);
+  const { isConnected, address, disconnect, isLoading } = useWeb3();
+
+  const handleClick = () => {
+    if (isConnected) {
+      disconnect();
+    } else {
+      setDialogOpen(true);
+    }
+  };
+
+  const displayAddress = address ? `${address.slice(0, 6)}...${address.slice(-4)}` : '';
 
   return (
     <>
       <Button
-        variant={variant}
+        variant={isConnected ? 'outline' : variant}
         size={size}
         className={className}
-        onClick={() => setDialogOpen(true)}
+        onClick={handleClick}
+        disabled={isLoading}
       >
-        <Wallet className="h-4 w-4 mr-2" />
-        Connect Wallet
+        {isConnected ? (
+          <>
+            <Check className="h-4 w-4 mr-2 text-green-600" />
+            {displayAddress}
+          </>
+        ) : (
+          <>
+            <Wallet className="h-4 w-4 mr-2" />
+            {isLoading ? 'Connecting...' : 'Connect Wallet'}
+          </>
+        )}
       </Button>
       
       <WalletConnectDialog
