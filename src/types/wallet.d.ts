@@ -5,7 +5,11 @@ interface StarknetWalletProvider {
   account?: {
     address: string;
     execute(calls: any[]): Promise<{ transaction_hash: string }>;
-    waitForTransaction(hash: string): Promise<{ status: string }>;
+    waitForTransaction(hash: string): Promise<{ 
+      status?: string;
+      execution_status?: string;
+      finality_status?: string;
+    }>;
   };
   chainId?: string;
 }

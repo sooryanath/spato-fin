@@ -49,14 +49,32 @@ const App = () => (
                     <Profile />
                   </ProtectedRoute>
                 } />
+                {/* Bank routes */}
+                <Route path="/bank" element={
+                  <ProtectedRoute requiredRole="bank">
+                    <BankDashboard />
+                  </ProtectedRoute>
+                } />
                 <Route path="/bank-dashboard" element={
                   <ProtectedRoute requiredRole="bank">
                     <BankDashboard />
                   </ProtectedRoute>
                 } />
+                {/* Company routes */}
+                <Route path="/company" element={
+                  <ProtectedRoute requiredRole="company">
+                    <CompanyDashboard />
+                  </ProtectedRoute>
+                } />
                 <Route path="/company-dashboard" element={
                   <ProtectedRoute requiredRole="company">
                     <CompanyDashboard />
+                  </ProtectedRoute>
+                } />
+                {/* Vendor routes */}
+                <Route path="/vendor" element={
+                  <ProtectedRoute requiredRole="vendor">
+                    <VendorDashboard />
                   </ProtectedRoute>
                 } />
                 <Route path="/vendor-dashboard" element={
