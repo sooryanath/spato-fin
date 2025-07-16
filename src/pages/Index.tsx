@@ -5,7 +5,6 @@ import { Navigate } from 'react-router-dom';
 import LandingHeader from '@/components/landing/LandingHeader';
 import HeroSection from '@/components/landing/HeroSection';
 import FeaturesSection from '@/components/landing/FeaturesSection';
-import StatsSection from '@/components/landing/StatsSection';
 import LandingFooter from '@/components/landing/LandingFooter';
 import BackgroundElements from '@/components/landing/BackgroundElements';
 
@@ -40,7 +39,6 @@ const Index = () => {
       <LandingHeader />
       <HeroSection />
       <FeaturesSection />
-      <StatsSection />
       <LandingFooter />
     </div>
   );
