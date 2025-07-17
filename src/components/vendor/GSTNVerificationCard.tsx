@@ -1,14 +1,85 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { AlertCircle, CheckCircle, Clock, FileText, Shield } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
 import GSTNVerificationModal from './GSTNVerificationModal';
 import GSTNStatusDisplay from './GSTNStatusDisplay';
 
 const GSTNVerificationCard = () => {
+  const { user } = useAuth();
+  const { toast } = useToast();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [verificationStatus, setVerificationStatus] = useState<'not_started' | 'pending' | 'verified' | 'failed'>('not_started');
+  const [gstinData, setGstinData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  // Load existing GSTN data on component mount
+  useEffect(() => {
+    if (user?.role === 'vendor') {
+      loadGSTNData();
+    }
+  }, [user]);
+
+  const loadGSTNData = async () => {
+    try {
+      setLoading(true);
+      
+      // First get vendor record
+      const { data: vendor, error: vendorError } = await supabase
+        .from('vendors')
+        .select('id')
+        .eq('profile_id', user?.id)
+        .single();
+
+      if (vendorError || !vendor) {
+        console.error('Vendor not found:', vendorError);
+        return;
+      }
+
+      // Get GSTN data
+      const { data: gstnData, error: gstnError } = await supabase
+        .from('vendor_gstn_data')
+        .select('*')
+        .eq('vendor_id', vendor.id)
+        .single();
+
+      if (gstnError && gstnError.code !== 'PGRST116') { // PGRST116 = no rows found
+        console.error('Error loading GSTN data:', gstnError);
+        return;
+      }
+
+      if (gstnData) {
+        setGstinData(gstnData);
+        setVerificationStatus(gstnData.verification_status as 'not_started' | 'pending' | 'verified' | 'failed' || 'not_started');
+      }
+    } catch (error) {
+      console.error('Error in loadGSTNData:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerificationComplete = () => {
+    setVerificationStatus('verified');
+    loadGSTNData(); // Reload data to get the latest information
+    toast({
+      title: "GSTN Verification Complete",
+      description: "Your GST information has been successfully verified.",
+    });
+  };
+
+  const handleVerificationFailed = () => {
+    setVerificationStatus('failed');
+    toast({
+      title: "GSTN Verification Failed",
+      description: "Please check your GSTIN and try again.",
+      variant: "destructive",
+    });
+  };
 
   const getStatusConfig = () => {
     switch (verificationStatus) {
@@ -72,7 +143,7 @@ const GSTNVerificationCard = () => {
             <p className="text-sm text-muted-foreground">{config.description}</p>
           </div>
 
-          {verificationStatus === 'verified' && <GSTNStatusDisplay />}
+          {verificationStatus === 'verified' && gstinData && <GSTNStatusDisplay gstinData={gstinData} />}
 
           <div className="flex flex-col gap-2">
             {verificationStatus !== 'verified' && (
@@ -104,8 +175,8 @@ const GSTNVerificationCard = () => {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onVerificationStart={() => setVerificationStatus('pending')}
-        onVerificationComplete={() => setVerificationStatus('verified')}
-        onVerificationFailed={() => setVerificationStatus('failed')}
+        onVerificationComplete={handleVerificationComplete}
+        onVerificationFailed={handleVerificationFailed}
       />
     </>
   );

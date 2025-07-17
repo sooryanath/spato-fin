@@ -1,17 +1,59 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Building2, Link, Shield, TrendingUp, AlertCircle, CheckCircle, Clock } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 import BankConnectionCard from './BankConnectionCard';
 import AAConsentModal from './AAConsentModal';
 import FinancialInsights from './FinancialInsights';
 
 const FinancialProfileCard = () => {
+  const { user } = useAuth();
   const [isConsentModalOpen, setIsConsentModalOpen] = useState(false);
   const [aaStatus, setAAStatus] = useState<'not_connected' | 'pending' | 'connected'>('not_connected');
   const [connectedBanks, setConnectedBanks] = useState<string[]>([]);
+  const [aaData, setAaData] = useState<any>(null);
+
+  useEffect(() => {
+    if (user?.role === 'vendor') {
+      loadAAData();
+    }
+  }, [user]);
+
+  const loadAAData = async () => {
+    try {
+      const { data: vendor } = await supabase
+        .from('vendors')
+        .select('id')
+        .eq('profile_id', user?.id)
+        .single();
+
+      if (vendor) {
+        const { data: aaData } = await supabase
+          .from('vendor_aa_data')
+          .select('*')
+          .eq('vendor_id', vendor.id)
+          .single();
+
+        if (aaData) {
+          setAaData(aaData);
+          setAAStatus(aaData.aa_status as 'not_connected' | 'pending' | 'connected' || 'not_connected');
+
+          const { data: bankAccounts } = await supabase
+            .from('vendor_bank_accounts')
+            .select('bank_name')
+            .eq('vendor_id', vendor.id);
+
+          setConnectedBanks(bankAccounts?.map(acc => acc.bank_name) || []);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading AA data:', error);
+    }
+  };
 
   const getStatusConfig = () => {
     switch (aaStatus) {
@@ -132,7 +174,7 @@ const FinancialProfileCard = () => {
           {aaStatus === 'connected' && (
             <>
               <Separator />
-              <FinancialInsights />
+              {aaData?.financial_data && <FinancialInsights financialData={aaData.financial_data} />}
             </>
           )}
         </CardContent>

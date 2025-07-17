@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, Shield, AlertCircle, CheckCircle } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
 interface GSTNVerificationModalProps {
@@ -48,13 +49,19 @@ const GSTNVerificationModal = ({
     onVerificationStart();
 
     try {
-      // Simulate API call to GSTN verification service
-      await new Promise(resolve => setTimeout(resolve, 3000));
-      
-      // Mock success response
-      const isValid = Math.random() > 0.3; // 70% success rate for demo
-      
-      if (isValid) {
+      // Call the GSTN verification edge function
+      const { data, error } = await supabase.functions.invoke('gstn-verification', {
+        body: { gstin },
+        headers: {
+          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
+        }
+      });
+
+      if (error) {
+        throw new Error(error.message || 'Verification failed');
+      }
+
+      if (data.success) {
         setStep('success');
         setTimeout(() => {
           onVerificationComplete();
@@ -69,16 +76,16 @@ const GSTNVerificationModal = ({
         onVerificationFailed();
         toast({
           title: "Verification Failed",
-          description: "Unable to verify the provided GSTIN. Please check and try again.",
+          description: data.error || "Unable to verify the provided GSTIN. Please check and try again.",
           variant: "destructive"
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       setStep('error');
       onVerificationFailed();
       toast({
         title: "Verification Error",
-        description: "An error occurred during verification. Please try again.",
+        description: error.message || "An error occurred during verification. Please try again.",
         variant: "destructive"
       });
     } finally {

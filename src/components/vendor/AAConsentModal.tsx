@@ -7,6 +7,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Shield, Clock, AlertCircle, CheckCircle, Building2, Calendar, FileText } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
 interface AAConsentModalProps {
@@ -26,7 +27,8 @@ const AAConsentModal = ({
 }: AAConsentModalProps) => {
   const [selectedBanks, setSelectedBanks] = useState<string[]>([]);
   const [consentGiven, setConsentGiven] = useState(false);
-  const [step, setStep] = useState<'select' | 'consent' | 'processing'>('select');
+  const [step, setStep] = useState<'select' | 'consent' | 'processing' | 'success' | 'error'>('select');
+  const [consentId, setConsentId] = useState<string>('');
   const { toast } = useToast();
 
   const availableBanks = [
@@ -77,21 +79,129 @@ const AAConsentModal = ({
     setStep('processing');
     onConsentPending();
 
-    // Simulate AA consent process
-    setTimeout(() => {
-      onConsentComplete(selectedBanks);
-      handleClose();
-      toast({
-        title: "Bank Accounts Connected",
-        description: `Successfully connected ${selectedBanks.length} bank account(s).`
+    try {
+      // Call the AA integration edge function to initiate consent
+      const { data, error } = await supabase.functions.invoke('aa-integration', {
+        body: { 
+          action: 'initiate_consent',
+          selectedBanks 
+        },
+        headers: {
+          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
+        }
       });
-    }, 3000);
+
+      if (error) {
+        throw new Error(error.message || 'Consent initiation failed');
+      }
+
+      if (data.success) {
+        setConsentId(data.data.consentId);
+        
+        // Start polling for consent status
+        pollConsentStatus(data.data.consentId);
+      } else {
+        throw new Error(data.error || 'Consent initiation failed');
+      }
+    } catch (error: any) {
+      setStep('error');
+      toast({
+        title: "Consent Failed",
+        description: error.message || "Failed to initiate consent process.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const pollConsentStatus = async (consentId: string) => {
+    const maxAttempts = 20; // 2 minutes with 6-second intervals
+    let attempts = 0;
+
+    const poll = async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke('aa-integration', {
+          body: { 
+            action: 'check_consent_status',
+            consentId 
+          },
+          headers: {
+            'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
+          }
+        });
+
+        if (error) {
+          throw new Error(error.message);
+        }
+
+        if (data.success && data.data.isApproved) {
+          // Fetch financial data
+          await fetchFinancialData(consentId);
+          return;
+        }
+
+        attempts++;
+        if (attempts < maxAttempts) {
+          setTimeout(poll, 6000); // Poll every 6 seconds
+        } else {
+          throw new Error('Consent approval timeout');
+        }
+      } catch (error: any) {
+        setStep('error');
+        toast({
+          title: "Consent Process Failed",
+          description: error.message || "Failed to complete consent process.",
+          variant: "destructive"
+        });
+      }
+    };
+
+    setTimeout(poll, 6000); // Start polling after 6 seconds
+  };
+
+  const fetchFinancialData = async (consentId: string) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('aa-integration', {
+        body: { 
+          action: 'fetch_financial_data',
+          consentId 
+        },
+        headers: {
+          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
+        }
+      });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      if (data.success) {
+        setStep('success');
+        setTimeout(() => {
+          onConsentComplete(selectedBanks);
+          handleClose();
+          toast({
+            title: "Bank Accounts Connected",
+            description: `Successfully connected ${selectedBanks.length} bank account(s) and fetched financial data.`
+          });
+        }, 2000);
+      } else {
+        throw new Error(data.error || 'Failed to fetch financial data');
+      }
+    } catch (error: any) {
+      setStep('error');
+      toast({
+        title: "Data Fetch Failed", 
+        description: error.message || "Failed to fetch financial data.",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleClose = () => {
     setSelectedBanks([]);
     setConsentGiven(false);
     setStep('select');
+    setConsentId('');
     onClose();
   };
 
@@ -238,9 +348,38 @@ const AAConsentModal = ({
             <div>
               <h3 className="font-medium">Processing Consent...</h3>
               <p className="text-sm text-muted-foreground">
-                Establishing secure connections with your selected banks.
+                Establishing secure connections with your selected banks. This may take up to 2 minutes.
               </p>
             </div>
+          </div>
+        );
+
+      case 'success':
+        return (
+          <div className="text-center space-y-4 py-8">
+            <CheckCircle className="h-12 w-12 mx-auto text-green-600" />
+            <div>
+              <h3 className="font-medium text-green-700">Connection Successful!</h3>
+              <p className="text-sm text-muted-foreground">
+                Your bank accounts have been connected and financial data has been fetched.
+              </p>
+            </div>
+          </div>
+        );
+
+      case 'error':
+        return (
+          <div className="text-center space-y-4 py-8">
+            <AlertCircle className="h-12 w-12 mx-auto text-red-600" />
+            <div>
+              <h3 className="font-medium text-red-700">Connection Failed</h3>
+              <p className="text-sm text-muted-foreground">
+                Unable to connect your bank accounts. Please try again later.
+              </p>
+            </div>
+            <Button onClick={() => setStep('select')} variant="outline">
+              Try Again
+            </Button>
           </div>
         );
 

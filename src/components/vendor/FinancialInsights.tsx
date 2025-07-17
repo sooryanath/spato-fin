@@ -4,7 +4,11 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { TrendingUp, TrendingDown, DollarSign, CreditCard, Calendar, AlertTriangle } from 'lucide-react';
 
-const FinancialInsights = () => {
+interface FinancialInsightsProps {
+  financialData?: any;
+}
+
+const FinancialInsights = ({ financialData = {} }: FinancialInsightsProps) => {
   // Mock financial data - in real implementation, this would come from AA data
   const insights = {
     creditScore: 750,

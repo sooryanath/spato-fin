@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      api_credentials: {
+        Row: {
+          additional_config: Json | null
+          api_key_encrypted: string | null
+          api_secret_encrypted: string | null
+          base_url: string
+          created_at: string
+          environment: string
+          id: string
+          is_active: boolean | null
+          service_name: string
+          updated_at: string
+        }
+        Insert: {
+          additional_config?: Json | null
+          api_key_encrypted?: string | null
+          api_secret_encrypted?: string | null
+          base_url: string
+          created_at?: string
+          environment?: string
+          id?: string
+          is_active?: boolean | null
+          service_name: string
+          updated_at?: string
+        }
+        Update: {
+          additional_config?: Json | null
+          api_key_encrypted?: string | null
+          api_secret_encrypted?: string | null
+          base_url?: string
+          created_at?: string
+          environment?: string
+          id?: string
+          is_active?: boolean | null
+          service_name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       companies: {
         Row: {
           annual_revenue: number | null
@@ -348,6 +387,181 @@ export type Database = {
             columns: ["to_profile_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vendor_aa_data: {
+        Row: {
+          aa_status: string | null
+          consent_expiry: string | null
+          consent_id: string | null
+          consent_status: string | null
+          created_at: string
+          financial_data: Json | null
+          id: string
+          last_sync_at: string | null
+          updated_at: string
+          vendor_id: string
+        }
+        Insert: {
+          aa_status?: string | null
+          consent_expiry?: string | null
+          consent_id?: string | null
+          consent_status?: string | null
+          created_at?: string
+          financial_data?: Json | null
+          id?: string
+          last_sync_at?: string | null
+          updated_at?: string
+          vendor_id: string
+        }
+        Update: {
+          aa_status?: string | null
+          consent_expiry?: string | null
+          consent_id?: string | null
+          consent_status?: string | null
+          created_at?: string
+          financial_data?: Json | null
+          id?: string
+          last_sync_at?: string | null
+          updated_at?: string
+          vendor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vendor_aa_data_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: true
+            referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vendor_bank_accounts: {
+        Row: {
+          aa_data_id: string
+          account_id: string
+          account_number_masked: string | null
+          account_type: string | null
+          balance: number | null
+          bank_name: string
+          branch: string | null
+          created_at: string
+          id: string
+          ifsc_code: string | null
+          is_active: boolean | null
+          last_transaction_date: string | null
+          updated_at: string
+          vendor_id: string
+        }
+        Insert: {
+          aa_data_id: string
+          account_id: string
+          account_number_masked?: string | null
+          account_type?: string | null
+          balance?: number | null
+          bank_name: string
+          branch?: string | null
+          created_at?: string
+          id?: string
+          ifsc_code?: string | null
+          is_active?: boolean | null
+          last_transaction_date?: string | null
+          updated_at?: string
+          vendor_id: string
+        }
+        Update: {
+          aa_data_id?: string
+          account_id?: string
+          account_number_masked?: string | null
+          account_type?: string | null
+          balance?: number | null
+          bank_name?: string
+          branch?: string | null
+          created_at?: string
+          id?: string
+          ifsc_code?: string | null
+          is_active?: boolean | null
+          last_transaction_date?: string | null
+          updated_at?: string
+          vendor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vendor_bank_accounts_aa_data_id_fkey"
+            columns: ["aa_data_id"]
+            isOneToOne: false
+            referencedRelation: "vendor_aa_data"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vendor_bank_accounts_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vendor_gstn_data: {
+        Row: {
+          address: string | null
+          api_response: Json | null
+          business_type: string | null
+          created_at: string
+          gstin: string
+          id: string
+          legal_name: string | null
+          registration_date: string | null
+          state: string | null
+          status: string | null
+          trade_name: string | null
+          updated_at: string
+          vendor_id: string
+          verification_status: string | null
+          verified_at: string | null
+        }
+        Insert: {
+          address?: string | null
+          api_response?: Json | null
+          business_type?: string | null
+          created_at?: string
+          gstin: string
+          id?: string
+          legal_name?: string | null
+          registration_date?: string | null
+          state?: string | null
+          status?: string | null
+          trade_name?: string | null
+          updated_at?: string
+          vendor_id: string
+          verification_status?: string | null
+          verified_at?: string | null
+        }
+        Update: {
+          address?: string | null
+          api_response?: Json | null
+          business_type?: string | null
+          created_at?: string
+          gstin?: string
+          id?: string
+          legal_name?: string | null
+          registration_date?: string | null
+          state?: string | null
+          status?: string | null
+          trade_name?: string | null
+          updated_at?: string
+          vendor_id?: string
+          verification_status?: string | null
+          verified_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vendor_gstn_data_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: true
+            referencedRelation: "vendors"
             referencedColumns: ["id"]
           },
         ]

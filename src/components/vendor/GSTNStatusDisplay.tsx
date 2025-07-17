@@ -14,17 +14,30 @@ interface GSTNInfo {
   businessType: string;
 }
 
-const GSTNStatusDisplay = () => {
-  // Mock data - in real implementation, this would come from API
+interface GSTNStatusDisplayProps {
+  gstinData: {
+    gstin: string;
+    legal_name?: string;
+    trade_name?: string;
+    registration_date?: string;
+    address?: string;
+    state?: string;
+    status?: string;
+    business_type?: string;
+    api_response?: any;
+  };
+}
+
+const GSTNStatusDisplay = ({ gstinData }: GSTNStatusDisplayProps) => {
   const gstnInfo: GSTNInfo = {
-    gstin: "27AAPFU0939F1ZV",
-    legalName: "Tech Solutions Private Limited",
-    tradeName: "TechSol",
-    registrationDate: "2020-04-15",
-    address: "123 Business Park, Tech City",
-    state: "Maharashtra",
-    status: "active",
-    businessType: "Private Limited Company"
+    gstin: gstinData.gstin,
+    legalName: gstinData.legal_name || 'N/A',
+    tradeName: gstinData.trade_name || '',
+    registrationDate: gstinData.registration_date || '',
+    address: gstinData.address || 'N/A',
+    state: gstinData.state || 'N/A',
+    status: gstinData.status as 'active' | 'inactive' | 'cancelled' || 'active',
+    businessType: gstinData.business_type || 'N/A'
   };
 
   const getStatusColor = (status: string) => {
