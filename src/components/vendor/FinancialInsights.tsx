@@ -2,23 +2,42 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { TrendingUp, TrendingDown, DollarSign, CreditCard, Calendar, AlertTriangle } from 'lucide-react';
+import { TrendingUp, TrendingDown, DollarSign, CreditCard, Calendar, AlertTriangle, IndianRupee } from 'lucide-react';
 
-interface FinancialInsightsProps {
-  financialData?: any;
+interface FinancialData {
+  accountSummary?: {
+    totalBalance: number;
+    accountsCount: number;
+    avgMonthlyBalance: number;
+  };
+  transactionSummary?: {
+    monthlyIncome: number;
+    monthlyExpenses: number;
+    transactionVolume: number;
+    savingsRate: number;
+  };
+  riskProfile?: {
+    creditScore?: number;
+    riskLevel: 'low' | 'medium' | 'high';
+    accountAge: number;
+  };
 }
 
-const FinancialInsights = ({ financialData = {} }: FinancialInsightsProps) => {
-  // Mock financial data - in real implementation, this would come from AA data
+interface FinancialInsightsProps {
+  financialData?: FinancialData | null;
+}
+
+const FinancialInsights = ({ financialData }: FinancialInsightsProps) => {
+  // Calculate insights from actual financial data or use defaults
   const insights = {
-    creditScore: 750,
-    avgMonthlyBalance: 145000,
-    monthlyIncome: 180000,
-    monthlyExpenses: 95000,
-    savingsRate: 47,
-    transactionVolume: 156,
-    accountAge: 24, // months
-    riskLevel: 'low'
+    creditScore: financialData?.riskProfile?.creditScore || 750,
+    avgMonthlyBalance: financialData?.accountSummary?.avgMonthlyBalance || 145000,
+    monthlyIncome: financialData?.transactionSummary?.monthlyIncome || 180000,
+    monthlyExpenses: financialData?.transactionSummary?.monthlyExpenses || 95000,
+    savingsRate: financialData?.transactionSummary?.savingsRate || 47,
+    transactionVolume: financialData?.transactionSummary?.transactionVolume || 156,
+    accountAge: financialData?.riskProfile?.accountAge || 24,
+    riskLevel: financialData?.riskProfile?.riskLevel || 'low'
   };
 
   const getCreditScoreColor = (score: number) => {
@@ -65,8 +84,9 @@ const FinancialInsights = ({ financialData = {} }: FinancialInsightsProps) => {
               <span className="text-xs text-muted-foreground">Avg Balance</span>
               <DollarSign className="h-3 w-3 text-muted-foreground" />
             </div>
-            <div className="text-lg font-bold">
-              ₹{(insights.avgMonthlyBalance / 1000).toFixed(0)}K
+            <div className="text-lg font-bold flex items-center gap-1">
+              <IndianRupee className="h-4 w-4" />
+              {(insights.avgMonthlyBalance / 1000).toFixed(0)}K
             </div>
             <div className="flex items-center gap-1">
               <TrendingUp className="h-3 w-3 text-green-600" />
@@ -82,8 +102,9 @@ const FinancialInsights = ({ financialData = {} }: FinancialInsightsProps) => {
               <span className="text-xs text-muted-foreground">Monthly Income</span>
               <TrendingUp className="h-3 w-3 text-muted-foreground" />
             </div>
-            <div className="text-lg font-bold">
-              ₹{(insights.monthlyIncome / 1000).toFixed(0)}K
+            <div className="text-lg font-bold flex items-center gap-1">
+              <IndianRupee className="h-4 w-4" />
+              {(insights.monthlyIncome / 1000).toFixed(0)}K
             </div>
             <p className="text-xs text-muted-foreground">Stable pattern</p>
           </CardContent>

@@ -8,6 +8,7 @@ import TokenHistory from '@/components/token/TokenHistory';
 import GSTNVerificationCard from './GSTNVerificationCard';
 import FinancialProfileCard from './FinancialProfileCard';
 import IntegrationStatusDashboard from './IntegrationStatusDashboard';
+import AAIntegrationWrapper from './AAIntegrationWrapper';
 
 const VendorProfile = () => {
   const { user } = useAuth();
@@ -53,6 +54,14 @@ const VendorProfile = () => {
           <GSTNVerificationCard />
           <FinancialProfileCard />
         </div>
+      </div>
+
+      <Separator />
+
+      {/* Account Aggregator Integration */}
+      <div>
+        <h2 className="text-2xl font-bold mb-4">Banking & Financial Data</h2>
+        <AAIntegrationWrapper />
       </div>
 
       <Separator />

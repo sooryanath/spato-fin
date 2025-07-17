@@ -3,11 +3,19 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Building2, Link, Shield, TrendingUp, AlertCircle, CheckCircle, Clock } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { 
+  Building2, 
+  Link, 
+  Shield, 
+  TrendingUp, 
+  AlertCircle, 
+  CheckCircle, 
+  Clock 
+} from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import BankConnectionCard from './BankConnectionCard';
 import AAConsentModal from './AAConsentModal';
 import FinancialInsights from './FinancialInsights';
 
@@ -17,6 +25,7 @@ const FinancialProfileCard = () => {
   const [isConsentModalOpen, setIsConsentModalOpen] = useState(false);
   const [aaStatus, setAAStatus] = useState<'not_connected' | 'pending' | 'connected'>('not_connected');
   const [connectedBanks, setConnectedBanks] = useState<string[]>([]);
+  const [bankAccounts, setBankAccounts] = useState<any[]>([]);
   const [aaData, setAaData] = useState<any>(null);
 
   useEffect(() => {
@@ -43,13 +52,16 @@ const FinancialProfileCard = () => {
         if (aaData) {
           setAaData(aaData);
           setAAStatus(aaData.aa_status as 'not_connected' | 'pending' | 'connected' || 'not_connected');
+        }
 
-          const { data: bankAccounts } = await supabase
-            .from('vendor_bank_accounts')
-            .select('bank_name')
-            .eq('vendor_id', vendor.id);
+        const { data: accounts } = await supabase
+          .from('vendor_bank_accounts')
+          .select('*')
+          .eq('vendor_id', vendor.id);
 
-          setConnectedBanks(bankAccounts?.map(acc => acc.bank_name) || []);
+        if (accounts) {
+          setBankAccounts(accounts);
+          setConnectedBanks(accounts.map(acc => acc.bank_name));
         }
       }
     } catch (error) {
@@ -135,23 +147,38 @@ const FinancialProfileCard = () => {
             </div>
           )}
 
-          {aaStatus === 'connected' && (
+          {aaStatus === 'connected' && bankAccounts.length > 0 && (
             <div className="space-y-3">
               <div className="flex items-center gap-2">
                 <Link className="h-4 w-4" />
-                <span className="text-sm font-medium">Connected Banks ({connectedBanks.length})</span>
+                <span className="text-sm font-medium">Connected Banks ({bankAccounts.length})</span>
               </div>
-              <div className="grid gap-2">
-                {connectedBanks.slice(0, 3).map((bank, index) => (
-                  <BankConnectionCard key={index} bankName={bank} />
+              <div className="space-y-2">
+                {bankAccounts.slice(0, 3).map((account, index) => (
+                  <div key={index} className="flex items-center gap-2 text-sm">
+                    <Building2 className="h-3 w-3 text-muted-foreground" />
+                    <span>{account.bank_name}</span>
+                    <Badge variant="outline" className="text-xs">
+                      {account.account_type}
+                    </Badge>
+                  </div>
                 ))}
-                {connectedBanks.length > 3 && (
+                {bankAccounts.length > 3 && (
                   <p className="text-xs text-muted-foreground">
-                    +{connectedBanks.length - 3} more banks connected
+                    +{bankAccounts.length - 3} more banks connected
                   </p>
                 )}
               </div>
             </div>
+          )}
+
+          {bankAccounts.length === 0 && aaStatus !== 'not_connected' && (
+            <Alert>
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                No bank accounts connected yet. Complete the Account Aggregator setup to connect your banks.
+              </AlertDescription>
+            </Alert>
           )}
 
           <div className="flex flex-col gap-2">
@@ -178,10 +205,10 @@ const FinancialProfileCard = () => {
             )}
           </div>
 
-          {aaStatus === 'connected' && (
+          {aaStatus === 'connected' && aaData?.financial_data && (
             <>
               <Separator />
-              {aaData?.financial_data && <FinancialInsights financialData={aaData.financial_data} />}
+              <FinancialInsights financialData={aaData.financial_data} />
             </>
           )}
         </CardContent>
