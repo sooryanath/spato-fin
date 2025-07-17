@@ -6,12 +6,14 @@ import { Separator } from '@/components/ui/separator';
 import { Building2, Link, Shield, TrendingUp, AlertCircle, CheckCircle, Clock } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
 import BankConnectionCard from './BankConnectionCard';
 import AAConsentModal from './AAConsentModal';
 import FinancialInsights from './FinancialInsights';
 
 const FinancialProfileCard = () => {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [isConsentModalOpen, setIsConsentModalOpen] = useState(false);
   const [aaStatus, setAAStatus] = useState<'not_connected' | 'pending' | 'connected'>('not_connected');
   const [connectedBanks, setConnectedBanks] = useState<string[]>([]);
@@ -89,7 +91,12 @@ const FinancialProfileCard = () => {
 
   const handleConsentComplete = (selectedBanks: string[]) => {
     setConnectedBanks(selectedBanks);
-    setAAStatus('connected');
+    setAAStatus('pending');
+    loadAAData(); // Reload to get updated data
+    toast({
+      title: "Consent Initiated",
+      description: "Bank account connection request has been sent. Please complete the consent process.",
+    });
   };
 
   return (

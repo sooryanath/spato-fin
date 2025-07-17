@@ -13,7 +13,7 @@ interface GSTNVerificationModalProps {
   isOpen: boolean;
   onClose: () => void;
   onVerificationStart: () => void;
-  onVerificationComplete: () => void;
+  onVerificationComplete: (data: any) => void;
   onVerificationFailed: () => void;
 }
 
@@ -64,7 +64,7 @@ const GSTNVerificationModal = ({
       if (data.success) {
         setStep('success');
         setTimeout(() => {
-          onVerificationComplete();
+          onVerificationComplete(data.data);
           handleClose();
           toast({
             title: "GSTN Verified Successfully",

@@ -63,8 +63,9 @@ const GSTNVerificationCard = () => {
     }
   };
 
-  const handleVerificationComplete = () => {
+  const handleVerificationComplete = (data: any) => {
     setVerificationStatus('verified');
+    setGstinData(data);
     loadGSTNData(); // Reload data to get the latest information
     toast({
       title: "GSTN Verification Complete",

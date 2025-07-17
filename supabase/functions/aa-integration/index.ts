@@ -6,263 +6,289 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Account Aggregator testnet configuration
+const AA_TESTNET_CONFIG = {
+  baseUrl: 'https://aa-api-testnet.example.com', // Replace with actual testnet URL
+  clientId: 'test_client_id',
+  clientSecret: 'test_client_secret',
+  endpoints: {
+    consent: '/api/consent/request',
+    fetchData: '/api/data/fetch',
+    status: '/api/consent/status'
+  }
+};
+
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { action, selectedBanks, consentId } = await req.json();
-    
-    // Initialize Supabase client
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      {
+        global: {
+          headers: { Authorization: req.headers.get('Authorization')! },
+        },
+      }
+    );
 
-    // Get the current user from the request
-    const authHeader = req.headers.get('Authorization');
-    if (!authHeader) {
-      throw new Error('Authorization header is required');
+    const { action, vendorId, selectedBanks, consentId } = await req.json();
+
+    if (!action || !vendorId) {
+      return new Response(
+        JSON.stringify({ error: 'Action and vendor ID are required' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
-    const token = authHeader.replace('Bearer ', '');
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-    
-    if (authError || !user) {
-      throw new Error('Invalid or expired token');
-    }
-
-    // Get vendor info for the current user
-    const { data: vendor, error: vendorError } = await supabase
-      .from('vendors')
-      .select('id')
-      .eq('profile_id', user.id)
-      .single();
-
-    if (vendorError || !vendor) {
-      throw new Error('Vendor not found for current user');
-    }
+    console.log(`AA Integration action: ${action} for vendor: ${vendorId}`);
 
     switch (action) {
       case 'initiate_consent':
-        return await handleInitiateConsent(supabase, vendor.id, selectedBanks);
+        return await initiateConsent(supabase, vendorId, selectedBanks);
       
       case 'check_consent_status':
-        return await handleCheckConsentStatus(supabase, vendor.id, consentId);
+        return await checkConsentStatus(supabase, vendorId, consentId);
       
       case 'fetch_financial_data':
-        return await handleFetchFinancialData(supabase, vendor.id, consentId);
+        return await fetchFinancialData(supabase, vendorId, consentId);
       
       default:
-        throw new Error('Invalid action');
+        return new Response(
+          JSON.stringify({ error: 'Invalid action' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
     }
 
   } catch (error) {
     console.error('Error in AA integration:', error);
     return new Response(
       JSON.stringify({ 
-        success: false, 
-        error: error.message || 'Internal server error' 
+        error: error.message,
+        success: false 
       }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 });
 
-async function handleInitiateConsent(supabase: any, vendorId: string, selectedBanks: string[]) {
-  // Simulate AA consent initiation
-  await new Promise(resolve => setTimeout(resolve, 1500));
-  
-  const consentId = `consent_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-  const consentExpiry = new Date();
-  consentExpiry.setMonth(consentExpiry.getMonth() + 3); // 3 months from now
-  
-  // Store AA data record
-  const { error: insertError } = await supabase
-    .from('vendor_aa_data')
-    .upsert({
-      vendor_id: vendorId,
-      aa_status: 'pending',
-      consent_id: consentId,
-      consent_status: 'pending',
-      consent_expiry: consentExpiry.toISOString()
-    });
+async function initiateConsent(supabase: any, vendorId: string, selectedBanks: string[]) {
+  try {
+    console.log('Initiating consent for banks:', selectedBanks);
 
-  if (insertError) {
-    console.error('Error storing AA consent data:', insertError);
-    throw new Error('Failed to store consent data');
-  }
-
-  // Mock consent response
-  const response = {
-    success: true,
-    data: {
-      consentId: consentId,
-      consentStatus: 'pending',
-      redirectUrl: `https://testnet-aa.example.com/consent/${consentId}`,
-      expectedBanks: selectedBanks,
-      expiryTime: consentExpiry.toISOString()
-    }
-  };
-
-  return new Response(JSON.stringify(response), {
-    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-  });
-}
-
-async function handleCheckConsentStatus(supabase: any, vendorId: string, consentId: string) {
-  // Simulate checking consent status
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  
-  // Get existing AA data
-  const { data: aaData, error: fetchError } = await supabase
-    .from('vendor_aa_data')
-    .select('*')
-    .eq('vendor_id', vendorId)
-    .eq('consent_id', consentId)
-    .single();
-
-  if (fetchError || !aaData) {
-    throw new Error('Consent record not found');
-  }
-
-  // Mock status - for demo, auto-approve after 30 seconds
-  const consentAge = Date.now() - new Date(aaData.created_at).getTime();
-  const isApproved = consentAge > 30000; // 30 seconds
-
-  let consentStatus = 'pending';
-  let aaStatus = 'pending';
-  
-  if (isApproved) {
-    consentStatus = 'approved';
-    aaStatus = 'connected';
+    // Simulate consent initiation (replace with actual AA API call)
+    const consentResponse = await simulateConsentInitiation(selectedBanks);
     
-    // Update the record
-    const { error: updateError } = await supabase
+    // Update vendor AA data
+    const { data, error } = await supabase
       .from('vendor_aa_data')
-      .update({
-        aa_status: aaStatus,
-        consent_status: consentStatus
-      })
-      .eq('vendor_id', vendorId)
-      .eq('consent_id', consentId);
-
-    if (updateError) {
-      console.error('Error updating consent status:', updateError);
-    }
-  }
-
-  const response = {
-    success: true,
-    data: {
-      consentId: consentId,
-      consentStatus: consentStatus,
-      aaStatus: aaStatus,
-      isApproved: isApproved
-    }
-  };
-
-  return new Response(JSON.stringify(response), {
-    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-  });
-}
-
-async function handleFetchFinancialData(supabase: any, vendorId: string, consentId: string) {
-  // Simulate fetching financial data
-  await new Promise(resolve => setTimeout(resolve, 2000));
-  
-  // Mock financial data
-  const mockBankAccounts = [
-    {
-      account_id: 'acc_1234567890',
-      bank_name: 'State Bank of India',
-      account_type: 'Savings',
-      account_number_masked: 'XXXX-XXXX-7890',
-      ifsc_code: 'SBIN0001234',
-      branch: 'MG Road Branch',
-      balance: 125000.50,
-      last_transaction_date: new Date().toISOString().split('T')[0]
-    },
-    {
-      account_id: 'acc_0987654321',
-      bank_name: 'HDFC Bank',
-      account_type: 'Current',
-      account_number_masked: 'XXXX-XXXX-4321',
-      ifsc_code: 'HDFC0001234',
-      branch: 'Commercial Street Branch',
-      balance: 85000.25,
-      last_transaction_date: new Date().toISOString().split('T')[0]
-    }
-  ];
-
-  const mockFinancialData = {
-    totalBalance: mockBankAccounts.reduce((sum, acc) => sum + acc.balance, 0),
-    accountCount: mockBankAccounts.length,
-    creditScore: 750,
-    averageMonthlyBalance: 95000,
-    monthlyIncome: 150000,
-    savingsRate: 15.5,
-    riskAssessment: 'Low',
-    lastSync: new Date().toISOString()
-  };
-
-  // Update AA data with financial information
-  const { error: updateError } = await supabase
-    .from('vendor_aa_data')
-    .update({
-      financial_data: mockFinancialData,
-      last_sync_at: new Date().toISOString()
-    })
-    .eq('vendor_id', vendorId)
-    .eq('consent_id', consentId);
-
-  if (updateError) {
-    console.error('Error updating financial data:', updateError);
-    throw new Error('Failed to store financial data');
-  }
-
-  // Get or create AA data record to link bank accounts
-  const { data: aaData, error: fetchError } = await supabase
-    .from('vendor_aa_data')
-    .select('id')
-    .eq('vendor_id', vendorId)
-    .eq('consent_id', consentId)
-    .single();
-
-  if (fetchError || !aaData) {
-    throw new Error('AA data record not found');
-  }
-
-  // Store bank accounts
-  for (const account of mockBankAccounts) {
-    const { error: bankError } = await supabase
-      .from('vendor_bank_accounts')
       .upsert({
         vendor_id: vendorId,
-        aa_data_id: aaData.id,
-        ...account
-      });
+        aa_status: 'pending',
+        consent_id: consentResponse.consentId,
+        consent_status: 'requested',
+        consent_expiry: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString() // 1 year
+      })
+      .select()
+      .single();
 
-    if (bankError) {
-      console.error('Error storing bank account:', bankError);
+    if (error) {
+      throw new Error(`Failed to save consent data: ${error.message}`);
     }
+
+    return new Response(
+      JSON.stringify({ 
+        success: true,
+        data: data,
+        consentUrl: consentResponse.consentUrl,
+        message: 'Consent initiated successfully'
+      }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+
+  } catch (error) {
+    console.error('Consent initiation error:', error);
+    return new Response(
+      JSON.stringify({ 
+        error: error.message,
+        success: false 
+      }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
   }
+}
 
-  const response = {
-    success: true,
-    data: {
-      consentId: consentId,
-      financialData: mockFinancialData,
-      bankAccounts: mockBankAccounts,
-      syncedAt: new Date().toISOString()
+async function checkConsentStatus(supabase: any, vendorId: string, consentId: string) {
+  try {
+    console.log('Checking consent status for:', consentId);
+
+    // Simulate consent status check (replace with actual AA API call)
+    const statusResponse = await simulateConsentStatusCheck(consentId);
+    
+    // Update vendor AA data
+    const { data, error } = await supabase
+      .from('vendor_aa_data')
+      .update({
+        consent_status: statusResponse.status,
+        aa_status: statusResponse.status === 'approved' ? 'connected' : 'pending'
+      })
+      .eq('vendor_id', vendorId)
+      .eq('consent_id', consentId)
+      .select()
+      .single();
+
+    if (error) {
+      throw new Error(`Failed to update consent status: ${error.message}`);
     }
-  };
 
-  return new Response(JSON.stringify(response), {
-    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-  });
+    return new Response(
+      JSON.stringify({ 
+        success: true,
+        data: data,
+        status: statusResponse.status,
+        message: `Consent status: ${statusResponse.status}`
+      }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+
+  } catch (error) {
+    console.error('Consent status check error:', error);
+    return new Response(
+      JSON.stringify({ 
+        error: error.message,
+        success: false 
+      }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+  }
+}
+
+async function fetchFinancialData(supabase: any, vendorId: string, consentId: string) {
+  try {
+    console.log('Fetching financial data for consent:', consentId);
+
+    // Simulate financial data fetch (replace with actual AA API call)
+    const financialData = await simulateFinancialDataFetch(consentId);
+    
+    // Update vendor AA data with financial information
+    const { data: aaData, error: aaError } = await supabase
+      .from('vendor_aa_data')
+      .update({
+        financial_data: financialData.summary,
+        last_sync_at: new Date().toISOString()
+      })
+      .eq('vendor_id', vendorId)
+      .eq('consent_id', consentId)
+      .select()
+      .single();
+
+    if (aaError) {
+      throw new Error(`Failed to update financial data: ${aaError.message}`);
+    }
+
+    // Save bank accounts
+    const bankAccountPromises = financialData.accounts.map(account => 
+      supabase
+        .from('vendor_bank_accounts')
+        .upsert({
+          vendor_id: vendorId,
+          aa_data_id: aaData.id,
+          account_id: account.accountId,
+          bank_name: account.bankName,
+          account_type: account.accountType,
+          account_number_masked: account.accountNumberMasked,
+          ifsc_code: account.ifscCode,
+          branch: account.branch,
+          balance: account.balance,
+          last_transaction_date: account.lastTransactionDate
+        })
+    );
+
+    await Promise.all(bankAccountPromises);
+
+    return new Response(
+      JSON.stringify({ 
+        success: true,
+        data: {
+          aaData,
+          financialData: financialData.summary,
+          accounts: financialData.accounts
+        },
+        message: 'Financial data fetched successfully'
+      }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+
+  } catch (error) {
+    console.error('Financial data fetch error:', error);
+    return new Response(
+      JSON.stringify({ 
+        error: error.message,
+        success: false 
+      }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+  }
+}
+
+// Simulation functions (replace with actual AA API calls)
+async function simulateConsentInitiation(selectedBanks: string[]) {
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  
+  return {
+    consentId: `consent_${Date.now()}`,
+    consentUrl: `https://aa-testnet.example.com/consent/${Date.now()}`,
+    status: 'initiated',
+    selectedBanks
+  };
+}
+
+async function simulateConsentStatusCheck(consentId: string) {
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  
+  // Simulate approval after some time
+  return {
+    consentId,
+    status: Math.random() > 0.3 ? 'approved' : 'pending',
+    approvedAt: new Date().toISOString()
+  };
+}
+
+async function simulateFinancialDataFetch(consentId: string) {
+  await new Promise(resolve => setTimeout(resolve, 2000));
+  
+  return {
+    consentId,
+    summary: {
+      totalBalance: 2500000,
+      averageMonthlyIncome: 450000,
+      creditScore: 750,
+      riskCategory: 'Low',
+      accountAge: 36
+    },
+    accounts: [
+      {
+        accountId: 'acc_001',
+        bankName: 'HDFC Bank',
+        accountType: 'Savings',
+        accountNumberMasked: 'XXXX XXXX XX1234',
+        ifscCode: 'HDFC0001234',
+        branch: 'Gurgaon Main',
+        balance: 1500000,
+        lastTransactionDate: '2024-01-15'
+      },
+      {
+        accountId: 'acc_002',
+        bankName: 'ICICI Bank',
+        accountType: 'Current',
+        accountNumberMasked: 'XXXX XXXX XX5678',
+        ifscCode: 'ICIC0005678',
+        branch: 'Sector 32',
+        balance: 1000000,
+        lastTransactionDate: '2024-01-16'
+      }
+    ]
+  };
 }
